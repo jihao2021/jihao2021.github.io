@@ -303,13 +303,9 @@ a:hover {
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   opacity: 0;
   transition: opacity 900ms ease;
-}
-
-.hero-carousel img:first-child {
-  object-position: center 18%;
 }
 
 .hero-carousel img.is-active {
