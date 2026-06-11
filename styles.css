@@ -379,14 +379,21 @@ a:hover {
   padding: 3.25rem 0;
 }
 
+.students {
+  background: var(--paper);
+  padding: 3.25rem 0;
+}
+
 .section-band > .section-heading,
-.section-band > .research-intro {
+.section-band > .research-intro,
+.section-band > .students-intro {
   max-width: var(--max);
 }
 
 .highlight-grid,
 .theme-grid,
-.contact-grid {
+.contact-grid,
+.people-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
@@ -410,7 +417,8 @@ a:hover {
 .theme-card,
 .project-list article,
 .publication-list article,
-.contact-grid > div {
+.contact-grid > div,
+.person-card {
   background: var(--white);
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -425,7 +433,8 @@ a:hover {
 .highlight-grid article:hover,
 .theme-card:hover,
 .project-list article:hover,
-.publication-list article:hover {
+.publication-list article:hover,
+.person-card:hover {
   border-color: rgba(153, 0, 0, 0.34);
   box-shadow: 0 12px 32px rgba(45, 18, 10, 0.08);
 }
@@ -449,6 +458,12 @@ a:hover {
   line-height: 1.2;
 }
 
+.person-card h4 {
+  margin: 0.8rem 0 0.4rem;
+  font-size: 1.08rem;
+  line-height: 1.2;
+}
+
 .publication-list h4 {
   margin: 0.45rem 0 0.5rem;
   font-size: 1.05rem;
@@ -459,7 +474,8 @@ a:hover {
 .theme-card p,
 .project-list p:not(.project-tag),
 .publication-list p:not(.pub-year),
-.contact-grid p {
+.contact-grid p,
+.person-card p {
   color: var(--muted);
 }
 
@@ -472,6 +488,55 @@ a:hover {
 
 .research-intro p {
   max-width: 860px;
+}
+
+.students-intro {
+  max-width: 860px;
+  margin-bottom: 2rem;
+  color: #333943;
+  font-size: 1.08rem;
+}
+
+.students-intro p {
+  max-width: 860px;
+}
+
+.student-group + .student-group {
+  margin-top: 2.1rem;
+}
+
+.student-group > h3 {
+  width: min(100% - 2rem, var(--max));
+  margin: 0 auto 1rem;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.35rem, 2.2vw, 1.9rem);
+  line-height: 1.1;
+  letter-spacing: 0;
+}
+
+.avatar {
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  border: 2px solid rgba(153, 0, 0, 0.24);
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--usc-cardinal);
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.person-meta {
+  margin: 0 0 0.4rem;
+  color: var(--ink);
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+
+.alumni-current {
+  margin-top: 0.6rem;
 }
 
 .publication-jump-bar {
@@ -666,6 +731,7 @@ a:hover {
 
   .intro,
   .highlight-grid,
+  .people-grid,
   .contact-grid,
   .contact-grid.compact {
     grid-template-columns: 1fr;
@@ -712,6 +778,7 @@ a:hover {
   .highlights,
   .projects,
   .publications,
+  .students,
   #research,
   #cv {
     padding: 2.4rem 0;
