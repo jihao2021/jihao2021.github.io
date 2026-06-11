@@ -349,6 +349,10 @@ a:hover {
   padding: 3.25rem 0;
 }
 
+.highlights > .section-heading {
+  max-width: var(--max);
+}
+
 #research {
   background: var(--paper);
   padding: 3.25rem 0;
