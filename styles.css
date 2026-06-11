@@ -384,6 +384,11 @@ a:hover {
   padding: 3.25rem 0;
 }
 
+.collaborators {
+  background: var(--soft);
+  padding: 3.25rem 0;
+}
+
 .section-band > .section-heading,
 .section-band > .research-intro,
 .section-band > .students-intro {
@@ -400,6 +405,10 @@ a:hover {
 }
 
 .theme-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.collaborator-people-grid {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
@@ -660,20 +669,13 @@ a:hover {
   }
 
   .theme-grid,
+  .collaborator-people-grid,
   .project-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 820px) {
-  html {
-    scroll-padding-top: 86px;
-  }
-
-  .brand small {
-    max-width: 190px;
-  }
-
+@media (max-width: 960px) {
   .nav-toggle {
     display: block;
     flex: 0 0 auto;
@@ -706,6 +708,16 @@ a:hover {
 
   .nav-links a:hover {
     background: var(--soft);
+  }
+}
+
+@media (max-width: 820px) {
+  html {
+    scroll-padding-top: 86px;
+  }
+
+  .brand small {
+    max-width: 190px;
   }
 
   .hero {
@@ -779,6 +791,7 @@ a:hover {
   .projects,
   .publications,
   .students,
+  .collaborators,
   #research,
   #cv {
     padding: 2.4rem 0;
@@ -794,6 +807,7 @@ a:hover {
   }
 
   .theme-grid,
+  .collaborator-people-grid,
   .project-list {
     grid-template-columns: 1fr;
   }
