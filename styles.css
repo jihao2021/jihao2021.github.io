@@ -341,6 +341,31 @@ a:hover {
   margin-top: 0;
 }
 
+.achievement-list {
+  display: grid;
+  gap: 0.65rem;
+  margin: 1.4rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.achievement-list li {
+  position: relative;
+  padding-left: 1.35rem;
+  color: #333943;
+}
+
+.achievement-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.68em;
+  width: 0.5rem;
+  height: 0.5rem;
+  background: var(--usc-cardinal);
+  border-radius: 50%;
+}
+
 .highlights,
 .projects,
 .publications,
