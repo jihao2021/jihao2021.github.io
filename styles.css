@@ -349,13 +349,14 @@ a:hover {
   padding: 3.25rem 0;
 }
 
-.highlights > .section-heading {
-  max-width: var(--max);
-}
-
 #research {
   background: var(--paper);
   padding: 3.25rem 0;
+}
+
+.section-band > .section-heading,
+.section-band > .research-intro {
+  max-width: var(--max);
 }
 
 .highlight-grid,
@@ -442,6 +443,10 @@ a:hover {
   margin-bottom: 2rem;
   color: #333943;
   font-size: 1.08rem;
+}
+
+.research-intro p {
+  max-width: 860px;
 }
 
 .publication-jump-bar {
