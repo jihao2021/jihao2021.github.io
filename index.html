@@ -1,184 +1,336 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hao Ji's Webpage</title>
-    <style>
-        body {
-    scroll-padding-top: 70px; /* Adjust the value to the height of the fixed header */
-}
-        body {
-            font-family: Georgia, serif;
-            margin: 0;
-            padding: 0;
-            background-color: #D8D8D8; /* Light gray background */
-            position: relative;
-        }
-        .header {
-            background: url('https://raw.githubusercontent.com/yukeli33/yukeli33.github.io/main/header.png') no-repeat center center;
-            background-size: cover;
-            color: white;
-            padding: 20px 0;
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 1000;
-        }
-        .header a {
-            color: white;
-            padding: 14px 25px;
-            text-decoration: none;
-            display: inline-block;
-        }
-        .header a:hover {
-            background-color: #ddd;
-            color: black;
-        }
-
-        section {
-            padding: 10px 60px;
-            padding-top: 60px;
-        }
-        .container {
-            width: 80%;
-            margin: 0 auto;
-            line-height: 1.6; /* Increased line spacing */
-        }
-        .footer {
-            background-color: #333;
-            color: white;
-            padding: 10px 0;
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-        }
-        .profile-pic {
-            float: left;
-            margin-right: 20px;
-            margin-bottom: 20px;
-            margin-top: 65px; /* Moved further down */
-            border-radius: 50%;
-            width: 200px; /* Enlarged profile picture */
-        }
-        #self-introduction {
-    margin-top: 1.5cm; /* Increase top margin to push the section down */
-       }
-
-        /* Additional styles */
-        .container ul {
-            padding-left: 20px;
-        }
-        .container li {
-            margin-bottom: 10px;
-        }
-        .reduced-spacing {
-            padding-top: 0cm; /* Adjusts the top padding to 1cm */
-        }
-        .pub-group-title {
-            margin-top: 20px;
-            margin-bottom: 8px;
-            font-weight: bold;
-        }
-    </style>
-    <meta name="google-site-verification" content="ArySbpXN02xgok-TX_Gpo-27IjWXi9cBvR-rgeUTo9k" />
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-55RCZN9D23"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'G-55RCZN9D23');
-    </script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Hao Ji is a USC data scientist, lecturer, and researcher working on multi-agent reinforcement learning, self-organizing systems, large language models, high performance computing, and time series analysis.">
+  <meta name="theme-color" content="#990000">
+  <meta name="google-site-verification" content="ArySbpXN02xgok-TX_Gpo-27IjWXi9cBvR-rgeUTo9k">
+  <title>Hao Ji | USC Data Scientist and Researcher</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
 </head>
-
-
 <body>
+  <a class="skip-link" href="#main">Skip to content</a>
 
-    <div class="header">
-        <a href="#self-introduction">Introduction</a>
-        <a href="#research-interests">Research Interests</a>
+  <header class="site-header" data-header>
+    <nav class="nav" aria-label="Primary navigation">
+      <a class="brand" href="#top" aria-label="Hao Ji home">
+        <span class="brand-mark">HJ</span>
+        <span>
+          <strong>Hao Ji</strong>
+          <small>USC Center for Advanced Research Computing</small>
+        </span>
+      </a>
+
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-menu">
+        <span class="sr-only">Toggle navigation</span>
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <div class="nav-links" id="site-menu">
+        <a href="#top">Home</a>
+        <a href="#profile">Profile</a>
+        <a href="#research">Research</a>
         <a href="#publications">Publications</a>
+        <a href="#teaching">Teaching</a>
         <a href="#cv">CV</a>
         <a href="#contact">Contact</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero section-band" id="top">
+      <div class="hero-content">
+        <p class="eyebrow">University of Southern California</p>
+        <h1>Hao Ji</h1>
+        <p class="hero-copy">
+          Data scientist, lecturer, and researcher building intelligent systems across
+          multi-agent learning, large language models, high performance computing,
+          and time series analysis.
+        </p>
+        <div class="hero-actions" aria-label="Primary links">
+          <a class="button primary" href="cv/CV_HaoJi_2026.pdf">Download CV</a>
+          <a class="button secondary" href="mailto:haoji@usc.edu">Contact</a>
+        </div>
+      </div>
+
+      <div class="hero-visual" aria-label="Research visuals">
+        <div class="hero-carousel-dots" aria-label="Hero image selector">
+          <button type="button" aria-label="Show portrait"></button>
+          <button type="button" aria-label="Show research network"></button>
+        </div>
+        <div class="hero-carousel" data-hero-carousel>
+          <img src="portrait.png" alt="Illustrated portrait of Hao Ji" loading="eager">
+          <img src="header.png" alt="Abstract connected network graphic" loading="lazy">
+        </div>
+      </div>
+    </section>
+
+    <section class="section intro" id="profile" aria-labelledby="profile-title">
+      <div class="section-heading">
+        <p class="eyebrow">Profile</p>
+        <h2 id="profile-title">AI, HPC, and self-organizing systems at USC.</h2>
+      </div>
+      <div class="intro-copy">
+        <p>
+          Dr. Hao Ji is a Data Scientist at USC's Center for Advanced Research Computing.
+          He is also a part-time lecturer at USC Viterbi, teaching
+          High Performance Computing in Applied Machine Learning.
+        </p>
+        <p>
+          He earned his Ph.D. from the University of Southern California and his
+          master's degree from the University of California at Berkeley. He serves as
+          a reviewer for top-tier journals and conferences and holds a position on the
+          Editorial Board of the Journal of Mathematics and Computer Science.
+        </p>
+      </div>
+    </section>
+
+    <section class="section section-band highlights" aria-labelledby="highlights-title">
+      <div class="section-heading">
+        <p class="eyebrow">Current focus</p>
+        <h2 id="highlights-title">Research, teaching, and applied computing.</h2>
+      </div>
+      <div class="highlight-grid">
+        <article>
+          <p class="card-index">01</p>
+          <h3>USC CARC data science</h3>
+          <p>Applied AI, user support, benchmarking, and research computing workflows for advanced computational research.</p>
+        </article>
+        <article>
+          <p class="card-index">02</p>
+          <h3>Viterbi teaching</h3>
+          <p>High performance computing for applied machine learning, with a focus on practical systems and scalable methods.</p>
+        </article>
+        <article>
+          <p class="card-index">03</p>
+          <h3>Collaborative research</h3>
+          <p>Multi-agent reinforcement learning, self-organizing systems, LLM evaluation, and time series intelligence.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section section-band" id="research" aria-labelledby="research-title">
+      <div class="section-heading">
+        <p class="eyebrow">Research</p>
+        <h2 id="research-title">Research interests</h2>
+      </div>
+      <div class="research-intro">
+        <p>
+          My research interests include game theory, machine learning and AI, time
+          series classification, reinforcement learning, large language models, and
+          high performance computing.
+        </p>
+      </div>
+      <div class="theme-grid">
+        <article class="theme-card">
+          <span class="card-index">01</span>
+          <h3>Multi-agent reinforcement learning</h3>
+          <p>Game theory, social learning, emergent behavior, and self-organizing teams in complex engineering tasks.</p>
+        </article>
+        <article class="theme-card">
+          <span class="card-index">02</span>
+          <h3>AI for engineering systems</h3>
+          <p>Digital twin manufacturing, surrogate models, reward-weight sensitivity, and autonomous workflow development.</p>
+        </article>
+        <article class="theme-card">
+          <span class="card-index">03</span>
+          <h3>LLMs and retrieval systems</h3>
+          <p>RAG for HPC user support, LLM benchmarks for 3D modeling, and code generation evaluation.</p>
+        </article>
+        <article class="theme-card">
+          <span class="card-index">04</span>
+          <h3>HPC and time series intelligence</h3>
+          <p>Distributed GPU training, HPC system benchmarking, and multivariable time series classification with LLM/CNN methods.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section section-band projects" aria-labelledby="projects-title">
+      <div class="section-heading">
+        <p class="eyebrow">Projects</p>
+        <h2 id="projects-title">Project areas</h2>
+      </div>
+      <div class="project-list">
+        <article>
+          <p class="project-tag">Autonomy</p>
+          <h3>Game theory in multi-agent marine ship combat scenarios</h3>
+        </article>
+        <article>
+          <p class="project-tag">Manufacturing</p>
+          <h3>Digital twin manufacturing system modeling using reinforcement learning</h3>
+        </article>
+        <article>
+          <p class="project-tag">Optimization</p>
+          <h3>Surrogate model for parameter optimization of reinforcement learning models</h3>
+        </article>
+        <article>
+          <p class="project-tag">AI tools</p>
+          <h3>Agent-based frameworks for autonomous workflow development</h3>
+        </article>
+      </div>
+    </section>
+
+    <section class="section section-band publications" id="publications" aria-labelledby="publications-title">
+      <div class="section-heading">
+        <p class="eyebrow">Publications</p>
+        <h2 id="publications-title">Selected publications</h2>
+      </div>
+
+      <div class="publication-jump-bar" aria-label="Publication sections">
+        <a href="#journal-articles">Journal articles</a>
+        <a href="#conference-papers">Conference papers</a>
+      </div>
+
+      <section class="publication-type-section" id="journal-articles" aria-labelledby="journal-title">
+        <h3 id="journal-title">Journal Articles</h3>
+        <div class="publication-list">
+          <article>
+            <p class="pub-year">2026</p>
+            <h4><a href="papers/J006-JCISE2026-HJ.pdf">Efficient Training in Multi-Agent Reinforcement Learning: A Communication-Free Framework for the Box-Pushing Problem</a></h4>
+            <p>David Ge, Hao Ji, and Bingling Huang. Journal of Computing and Information Science in Engineering.</p>
+          </article>
+          <article>
+            <p class="pub-year">2026</p>
+            <h4><a href="papers/J005-IEEEAccess2026-HJ.pdf">CodeGen-3D: A Benchmark for Evaluating LLMs in Zero-Shot and Iterative 3D Modeling in Blender</a></h4>
+            <p>Hao Ji, K. Aditya, S. Escalante, and Y. Qiu. IEEE Access.</p>
+          </article>
+          <article>
+            <p class="pub-year">2024</p>
+            <h4><a href="papers/J003-JCISE2024-HJ-YJ.pdf">Impact of Task Constraints on Agent Team Size of Self-Organizing Systems Measured by Effective Entropy</a></h4>
+            <p>Hao Ji and Yan Jin. Journal of Computing and Information Science in Engineering. Editor's Pick Award of JCISE.</p>
+          </article>
+          <article>
+            <p class="pub-year">2022</p>
+            <h4><a href="papers/J001-JCISE2021-HJ-YJ.pdf">Knowledge Acquisition of Self-Organizing Systems with Multi-agent Reinforcement Learning</a></h4>
+            <p>Hao Ji and Yan Jin. Journal of Computing and Information Science in Engineering. Journal Spotlight at IDETC 2022.</p>
+          </article>
+          <article>
+            <p class="pub-year">2021</p>
+            <h4><a href="papers/J002-AIEDAM2021-HJ-YJ.pdf">Evaluating the Learning and Performance Characteristics of Self-organizing Systems with Different Task Features</a></h4>
+            <p>Hao Ji and Yan Jin. AIEDAM.</p>
+          </article>
+          <article>
+            <p class="pub-year">2017</p>
+            <h4><a href="papers/J004-JEM-HJ-YJ-2017.pdf">Adoption of Social Rules in Teams of Different Sizes</a></h4>
+            <p>Hao Ji and Yan Jin. Engineering Management Reviews.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="publication-type-section" id="conference-papers" aria-labelledby="conference-title">
+        <h3 id="conference-title">Conference Papers</h3>
+        <div class="publication-list">
+          <article>
+            <p class="pub-year">2025</p>
+            <h4><a href="papers/C006-IDETC2025-HJ-JJ-CH-BH.pdf">Sensitivity Analysis of Reward Weights in Multi-Agent Learning: A Box-Pushing Case Study</a></h4>
+            <p>Hao Ji et al. ASME IDETC.</p>
+          </article>
+          <article>
+            <p class="pub-year">2025</p>
+            <h4><a href="papers/C005-IDETC2025-BH-MH-HJ.pdf">Emergent Role Specialization in Self-Organized Systems via K-Means-Based Behavioral Analysis</a></h4>
+            <p>Bingling Huang, Maximillian Haaga, and Hao Ji. ASME IDETC.</p>
+          </article>
+          <article>
+            <p class="pub-year">2024</p>
+            <h4><a href="papers/C008-IDETC2024-BH-HJ-YJ.pdf">Impact of Social Learning on Teamwork Efficiency in Learning-Based Self-Organized Systems</a></h4>
+            <p>Bingling Huang, Hao Ji, and Yan Jin. ASME IDETC.</p>
+          </article>
+          <article>
+            <p class="pub-year">2020</p>
+            <h4><a href="papers/C003-DCC_2020-HJ-YJ.pdf">Designing Self-Assembly Systems with Deep Multi-agent Reinforcement Learning</a></h4>
+            <p>Hao Ji and Yan Jin. Design Computing and Cognition.</p>
+          </article>
+          <article>
+            <p class="pub-year">2019</p>
+            <h4><a href="papers/C002-IDETC2019-HJ-YJ.pdf">Designing Self-Organizing Systems with Deep Multi-agent Reinforcement Learning</a></h4>
+            <p>Hao Ji and Yan Jin. ASME IDETC.</p>
+          </article>
+          <article>
+            <p class="pub-year">2018</p>
+            <h4><a href="papers/C004-IDETC2018-HJ-YJ.pdf">Modeling Trust of Self-Organizing Systems with Heterogeneity</a></h4>
+            <p>Hao Ji and Yan Jin. ASME IDETC.</p>
+          </article>
+          <article>
+            <p class="pub-year">2015</p>
+            <h4><a href="papers/C001-IDETC2015-HJ-AP.pdf">Mechanism Design and Simulation of the ULTRA Spine: A Tensegrity Robot</a></h4>
+            <p>Andrew P. Sabelhaus, Hao Ji, et al. ASME IDETC.</p>
+          </article>
+        </div>
+      </section>
+    </section>
+
+    <section class="section join" id="teaching" aria-labelledby="teaching-title">
+      <div class="join-panel">
+        <div>
+          <p class="eyebrow">Teaching and collaboration</p>
+          <h2 id="teaching-title">High performance computing in applied machine learning.</h2>
+          <p>
+            I welcome research conversations around multi-agent learning, RAG for
+            research computing support, LLM benchmarks, distributed GPU training,
+            and autonomous workflow systems.
+          </p>
+        </div>
+        <a class="button primary" href="mailto:haoji@usc.edu">Start a conversation</a>
+      </div>
+    </section>
+
+    <section class="section section-band contact" id="cv" aria-labelledby="cv-title">
+      <div class="section-heading">
+        <p class="eyebrow">CV</p>
+        <h2 id="cv-title">Curriculum vitae</h2>
+      </div>
+      <div class="contact-grid">
+        <div>
+          <h3>CV</h3>
+          <p>You can download the current CV as a PDF.</p>
+          <p><a class="text-link" href="cv/CV_HaoJi_2026.pdf">Download CV (2026)</a></p>
+        </div>
+        <div>
+          <h3>Research inquiries</h3>
+          <p>Students and collaborators interested in research with Hao Ji can reach out by email.</p>
+          <p><a class="text-link" href="mailto:haoji@usc.edu">haoji@usc.edu</a></p>
+        </div>
+        <div>
+          <h3>Affiliation</h3>
+          <p>USC Center for Advanced Research Computing and USC Viterbi School of Engineering.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section contact" id="contact" aria-labelledby="contact-title">
+      <div class="section-heading">
+        <p class="eyebrow">Contact</p>
+        <h2 id="contact-title">Professional inquiries</h2>
+      </div>
+      <div class="contact-grid compact">
+        <div>
+          <h3>Email</h3>
+          <p><a href="mailto:haoji@usc.edu">haoji@usc.edu</a></p>
+        </div>
+        <div>
+          <h3>Location</h3>
+          <p>University of Southern California, Los Angeles, CA.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div>
+      <strong>Hao Ji</strong>
+      <p>USC Center for Advanced Research Computing</p>
     </div>
-
-    <section id="self-introduction" class="container">
-   <img src="https://raw.githubusercontent.com/jihao2021/jihao2021.github.io/main/portrait.png" alt="Hao Ji" class="profile-pic">
-        <h2>Introduction</h2>
-        <p> Dr. Hao Ji is currently a Data Scientist at  USC’s Center for Advanced Research Computing. He is also a part-time lecturer at Viterbi teaching 'High Performance Computing in Applied Machine Learning'. He obtained his Ph.D from University of Southern California and his Master's from University of California at Berkeley. He serves as a reviewer for multiple top-tier journals and conferences and holds a position on the Editorial Board of the Journal of Mathematics and Computer Science.
-
-Hao’s research focuses on multi-agent reinforcement learning, self-organizing systems, deep learning algorithms, large language models, high performance computing, and time series analysis. If you are interested in conducting research with Hao Ji, please send an email to haoji@usc.edu. </p>
-        <div style="clear: both;"></div> <!-- Clear the float -->
-    </section>
-
-    <section id="research-interests" class="container reduced-spacing">
-        <h2>Research Interests</h2>
-        <p>My research interests include game theory, machine learning and AI, time series classification, reinforcement learning, large language models, and high performance computing.<p>
-            
-        <ul class="project-list">
-        <li>Game Theory in Multi-Agent Marine Ship Combat Scenarios</li>
-        <li>Digital Twin Manufacturing System Modeling using Reinforcement Learning</li>
-        <li>Multivariable Time Series Classification using LLM/CNN</li>
-        <li>Surrogate Model for Parameter Optimization of RL Models</li>
-        <li>Using RAG (Retrieval Augmented Generation) for Question & Answer ChatBOT in HPC User Support</li>
-        <li>Agent Based Framework for Autonomous Workflow Development</li>
-        <li>LLM Benchmarks for 3D Modeling and Code Generation</li>
-        <li>Distributed GPU Training and HPC System Benchmarking</li>
-    </ul>
-    </section>
-
- <section id="publications" class="container reduced-spacing">
-    <h2>Publications</h2>
-
-    <p class="pub-group-title">Journal Articles</p>
-     
-    <ul>
-        <li>David Ge, Hao Ji, and Bingling Huang, <a href="papers/J006-JCISE2026-HJ.pdf">Efficient Training in Multi-Agent Reinforcement Learning: A Communication-Free Framework for the Box-Pushing Problem</a>.Journal of Computing and Information Science in Engineering , 2026</li>
-        <li>Hao Ji, K. Aditya, S. Escalante, and Y. Qiu, <a href="papers/J005-IEEEAccess2026-HJ.pdf">CodeGen-3D: A Benchmark for Evaluating LLMs in Zero-Shot and Iterative 3D Modeling in Blender</a>. IEEE Access, 2026.</li>
-
-        <li>Hao Ji and Yan Jin, <a href="papers/J003-JCISE2024-HJ-YJ.pdf">Impact of Task Constraints on Agent Team Size of Self-Organizing Systems Measured by Effective Entropy</a>. Journal of Computing and Information Science in Engineering, 2024. <em>(Editor’s Pick Award of JCISE)</em></li>
-
-        <li>Hao Ji and Yan Jin, <a href="papers/J001-JCISE2021-HJ-YJ.pdf">Knowledge Acquisition of Self-Organizing Systems with Multi-agent Reinforcement Learning</a>. Journal of Computing and Information Science in Engineering, 2022. <em>(Journal Spotlight at IDETC 2022)</em></li>
-
-        <li>Hao Ji and Yan Jin, <a href="papers/J002-AIEDAM2021-HJ-YJ.pdf">Evaluating the Learning and Performance Characteristics of Self-organizing Systems with Different Task Features</a>. AIEDAM, 2021.</li>
-
-        <li>Hao Ji and Yan Jin, <a href="papers/J004-JEM-HJ-YJ-2017.pdf">Adoption of Social Rules in Teams of Different Sizes</a>. Engineering Management Reviews, 2017.</li>
-    </ul>
-
-    <p class="pub-group-title">Conference Papers</p>
-    <ul>
-        <li>Hao Ji et al., <a href="papers/C006-IDETC2025-HJ-JJ-CH-BH.pdf">Sensitivity Analysis of Reward Weights in Multi-Agent Learning: A Box-Pushing Case Study</a>. ASME IDETC, 2025.</li>
-
-        
-
-        <li>Bingling Huang, Maximillian Haaga, and Hao Ji, <a href="papers/C005-IDETC2025-BH-MH-HJ.pdf">Emergent Role Specialization in Self-Organized Systems via K-Means-Based Behavioral Analysis</a>. ASME IDETC, 2025.</li>
-
-        <li>Bingling Huang, Hao Ji, and Yan Jin, <a href="papers/C008-IDETC2024-BH-HJ-YJ.pdf">Impact of Social Learning on Teamwork Efficiency in Learning-Based Self-Organized Systems</a>. ASME IDETC, 2024.</li>
-
-        <li>Hao Ji and Yan Jin, <a href="papers/C003-DCC_2020-HJ-YJ.pdf">Designing Self-Assembly Systems with Deep Multi-agent Reinforcement Learning</a>. Design Computing and Cognition (DCC), 2020.</li>
-
-        <li>Hao Ji and Yan Jin, <a href="papers/C002-IDETC2019-HJ-YJ.pdf">Designing Self-Organizing Systems with Deep Multi-agent Reinforcement Learning</a>. ASME IDETC, 2019.</li>
-
-        <li>Hao Ji and Yan Jin, <a href="papers/C004-IDETC2018-HJ-YJ.pdf">Modeling Trust of Self-Organizing Systems with Heterogeneity</a>. ASME IDETC, 2018.</li>
-
-        <li>Andrew P. Sabelhaus, Hao Ji, et al., <a href="papers/C001-IDETC2015-HJ-AP.pdf">Mechanism Design and Simulation of the ULTRA Spine: A Tensegrity Robot</a>. ASME IDETC, 2015.</li>
-    </ul>
-</section>
-    <section id="cv" class="container reduced-spacing">
-        <h2>CV</h2>
-        <p>You can download my CV here: <a href="cv/CV_HaoJi_2026.pdf" target="_blank">Download CV (2026)</a></p>
-        <!-- Or include your CV content directly here -->
-    </section> 
-
-
-    <section id="contact" class="container reduced-spacing">
-        <h2>Contact</h2>
-        <p>For any professional inquiries, please contact me at <a href="mailto:haoji@usc.edu">haoji@usc.edu</a>.</p>
-    </section>
-
- 
-
+    <div class="footer-links">
+      <a href="#top">Home</a>
+      <a href="#research">Research</a>
+      <a href="#publications">Publications</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </footer>
 </body>
 </html>
