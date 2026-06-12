@@ -1,4 +1,4 @@
-name: Daily AI research blog
+name: Daily AI and tech blog
 
 on:
   schedule:
@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Generate daily digest
+      - name: Generate daily AI and tech digest
         run: node tools/update-ai-blog.mjs
 
       - name: Commit daily digest
@@ -31,6 +31,6 @@ jobs:
             echo "No blog changes to publish."
           else
             git add blog/
-            git commit -m "Publish daily AI research digest"
+            git commit -m "Publish daily AI and tech digest"
             git push
           fi

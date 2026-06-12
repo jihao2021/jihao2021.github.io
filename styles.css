@@ -623,6 +623,23 @@ a:hover {
   color: var(--muted);
 }
 
+.digest-section {
+  margin-top: 2.2rem;
+}
+
+.digest-section > h2 {
+  margin: 0 0 0.4rem;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.45rem, 2.6vw, 2.1rem);
+  line-height: 1.08;
+  letter-spacing: 0;
+}
+
+.digest-section > p {
+  margin: 0 0 1rem;
+  color: var(--muted);
+}
+
 .research-intro {
   max-width: 860px;
   margin-bottom: 2rem;

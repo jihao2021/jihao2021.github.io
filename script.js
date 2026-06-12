@@ -79,13 +79,13 @@ const renderLatestBlogPost = (post) => {
   kicker.textContent = post.date ? `Latest digest | ${post.date}` : "Latest digest";
 
   const title = document.createElement("h3");
-  title.textContent = (post.title || "Daily AI research digest").replace(
+  title.textContent = (post.title || "Daily AI and tech digest").replace(
     / for \d{4}-\d{2}-\d{2}$/,
     ""
   );
 
   const summary = document.createElement("p");
-  summary.textContent = post.summary || "Fresh AI research notes from Transformer Lab.";
+  summary.textContent = post.summary || "Fresh AI and tech notes from Transformer Lab.";
 
   const link = document.createElement("a");
   link.className = "text-link";
@@ -107,8 +107,8 @@ if (latestBlogCard) {
     .then(renderLatestBlogPost)
     .catch(() => {
       renderLatestBlogPost({
-        title: "Daily AI research digest",
-        summary: "The automated digest will appear here after the next scheduled run.",
+        title: "Daily AI and tech digest",
+        summary: "The automated AI and tech digest will appear here after the next scheduled run.",
         url: "blog/"
       });
     });

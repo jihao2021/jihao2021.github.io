@@ -6,17 +6,56 @@ const rootDir = process.cwd();
 const blogDir = path.join(rootDir, "blog");
 const postsDir = path.join(blogDir, "posts");
 const dataDir = path.join(blogDir, "data");
-const siteUrl = "https://jihao2021.github.io";
-const maxPapers = Number.parseInt(process.env.BLOG_MAX_PAPERS || "8", 10);
+const maxNewsItems = Number.parseInt(process.env.BLOG_MAX_NEWS || "10", 10);
+const maxPapers = Number.parseInt(process.env.BLOG_MAX_PAPERS || "6", 10);
 const maxStoredPosts = Number.parseInt(process.env.BLOG_MAX_STORED_POSTS || "60", 10);
-const assetVersion = "20260612";
-const topics = [
+const assetVersion = "20260612b";
+
+const arxivTopics = [
   "cat:cs.AI",
   "cat:cs.LG",
   "cat:cs.CL",
   "cat:cs.CV",
   "cat:cs.MA",
   "cat:stat.ML"
+];
+
+const newsSources = [
+  {
+    name: "OpenAI News",
+    url: "https://openai.com/news/rss.xml",
+    track: "AI"
+  },
+  {
+    name: "Google AI",
+    url: "https://blog.google/technology/ai/rss/",
+    track: "AI"
+  },
+  {
+    name: "TechCrunch",
+    url: "https://techcrunch.com/category/artificial-intelligence/feed/",
+    track: "AI/Tech"
+  },
+  {
+    name: "VentureBeat AI",
+    url: "https://venturebeat.com/category/ai/feed/",
+    track: "AI"
+  },
+  {
+    name: "The Verge",
+    url: "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml",
+    track: "AI/Tech"
+  },
+  {
+    name: "Hacker News",
+    url: "https://hnrss.org/frontpage?points=150&count=12",
+    track: "Tech"
+  },
+  {
+    name: "Ars Technica",
+    url: "https://feeds.arstechnica.com/arstechnica/index",
+    track: "Tech"
+  }
 ];
 
 const escapeHtml = (value) =>
@@ -29,6 +68,8 @@ const escapeHtml = (value) =>
 
 const decodeEntities = (value) =>
   String(value ?? "")
+    .replace(/&#(\d+);/g, (_, code) => String.fromCodePoint(Number.parseInt(code, 10)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, code) => String.fromCodePoint(Number.parseInt(code, 16)))
     .replaceAll("&amp;", "&")
     .replaceAll("&lt;", "<")
     .replaceAll("&gt;", ">")
@@ -36,8 +77,15 @@ const decodeEntities = (value) =>
     .replaceAll("&#39;", "'")
     .replaceAll("&apos;", "'");
 
+const cleanText = (value) =>
+  decodeEntities(
+    String(value ?? "")
+      .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
+      .replace(/<[^>]+>/g, " ")
+  ).replace(/\s+/g, " ").trim();
+
 const normalizeWhitespace = (value) =>
-  decodeEntities(value).replace(/\s+/g, " ").trim();
+  cleanText(value).replace(/\s+/g, " ").trim();
 
 const formatLosAngelesDate = (date = new Date()) => {
   const parts = new Intl.DateTimeFormat("en-US", {
@@ -51,17 +99,27 @@ const formatLosAngelesDate = (date = new Date()) => {
   return `${values.year}-${values.month}-${values.day}`;
 };
 
-const slugify = (value) =>
-  value
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 90);
+const formatSourceDate = (value, fallback) => {
+  if (!value) {
+    return fallback;
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return String(value).slice(0, 16);
+  }
+
+  return date.toISOString().slice(0, 10);
+};
 
 const getTag = (xml, tagName) => {
   const match = xml.match(new RegExp(`<${tagName}[^>]*>([\\s\\S]*?)<\\/${tagName}>`, "i"));
   return match ? normalizeWhitespace(match[1]) : "";
 };
+
+const getBlocks = (xml, tagName) =>
+  [...xml.matchAll(new RegExp(`<${tagName}\\b[^>]*>([\\s\\S]*?)<\\/${tagName}>`, "gi"))]
+    .map((match) => match[1]);
 
 const getAuthors = (xml) =>
   [...xml.matchAll(/<author>\s*<name>([\s\S]*?)<\/name>\s*<\/author>/gi)]
@@ -83,6 +141,22 @@ const getAlternateLink = (xml) => {
   return fallback ? normalizeWhitespace(fallback[1]) : "";
 };
 
+const getFeedLink = (xml) => {
+  const atom = xml.match(/<link[^>]*rel="alternate"[^>]*href="([^"]+)"/i)
+    || xml.match(/<link[^>]*href="([^"]+)"[^>]*rel="alternate"/i);
+  if (atom) {
+    return decodeEntities(atom[1]);
+  }
+
+  const rss = xml.match(/<link[^>]*>([\s\S]*?)<\/link>/i);
+  if (rss) {
+    return normalizeWhitespace(rss[1]);
+  }
+
+  const guid = xml.match(/<guid[^>]*>([\s\S]*?)<\/guid>/i);
+  return guid ? normalizeWhitespace(guid[1]) : "";
+};
+
 const abstractPreview = (abstract) => {
   const words = normalizeWhitespace(abstract).split(" ").filter(Boolean);
   if (words.length <= 34) {
@@ -94,7 +168,7 @@ const abstractPreview = (abstract) => {
 
 const fetchRecentPapers = async () => {
   const params = new URLSearchParams({
-    search_query: topics.join(" OR "),
+    search_query: arxivTopics.join(" OR "),
     sortBy: "submittedDate",
     sortOrder: "descending",
     max_results: String(maxPapers)
@@ -110,18 +184,59 @@ const fetchRecentPapers = async () => {
   }
 
   const xml = await response.text();
-  return [...xml.matchAll(/<entry>([\s\S]*?)<\/entry>/gi)].map((match) => {
-    const entry = match[1];
+  return getBlocks(xml, "entry").map((entry) => ({
+    title: getTag(entry, "title"),
+    summary: getTag(entry, "summary"),
+    published: getTag(entry, "published").slice(0, 10),
+    updated: getTag(entry, "updated").slice(0, 10),
+    authors: getAuthors(entry),
+    categories: getCategories(entry),
+    url: getAlternateLink(entry)
+  })).filter((paper) => paper.title && paper.url);
+};
+
+const fetchFeedItems = async (source) => {
+  const response = await fetch(source.url, {
+    headers: {
+      "User-Agent": "TransformerLabDailyBlog/1.0"
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error(`${source.name} feed failed with status ${response.status}`);
+  }
+
+  const xml = await response.text();
+  const blocks = getBlocks(xml, "item").length ? getBlocks(xml, "item") : getBlocks(xml, "entry");
+  return blocks.slice(0, 8).map((block) => {
+    const publishedRaw = getTag(block, "pubDate") || getTag(block, "published") || getTag(block, "updated");
     return {
-      title: getTag(entry, "title"),
-      summary: getTag(entry, "summary"),
-      published: getTag(entry, "published").slice(0, 10),
-      updated: getTag(entry, "updated").slice(0, 10),
-      authors: getAuthors(entry),
-      categories: getCategories(entry),
-      url: getAlternateLink(entry)
+      title: getTag(block, "title"),
+      published: formatSourceDate(publishedRaw, ""),
+      source: source.name,
+      track: source.track,
+      url: getFeedLink(block)
     };
-  }).filter((paper) => paper.title && paper.url);
+  }).filter((item) => item.title && item.url);
+};
+
+const fetchNewsItems = async () => {
+  const settled = await Promise.allSettled(newsSources.map(fetchFeedItems));
+  const items = settled.flatMap((result) => result.status === "fulfilled" ? result.value : []);
+  const seen = new Set();
+  const unique = items.filter((item) => {
+    const key = `${item.url || ""}|${item.title.toLowerCase()}`;
+    if (seen.has(key)) {
+      return false;
+    }
+
+    seen.add(key);
+    return true;
+  });
+
+  return unique
+    .sort((a, b) => new Date(b.published || 0) - new Date(a.published || 0))
+    .slice(0, maxNewsItems);
 };
 
 const readJson = async (filePath, fallback) => {
@@ -152,7 +267,7 @@ const renderHeader = (title, stylesheetPrefix, scriptPrefix) => `<!doctype html>
         <span class="brand-mark">TL</span>
         <span>
           <strong>Transformer Lab</strong>
-          <small>Daily AI research digest</small>
+          <small>Daily AI and tech digest</small>
         </span>
       </a>
       <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-menu">
@@ -189,42 +304,81 @@ const renderFooter = (prefix) => `  <footer class="site-footer">
 </html>
 `;
 
-const renderPost = ({ date, papers }) => {
-  const paperItems = papers.map((paper, index) => {
+const renderNewsItems = (newsItems, date) => {
+  if (!newsItems.length) {
+    return `        <li>
+          <p class="pub-year">News</p>
+          <h2>No feed items were available for ${escapeHtml(date)}</h2>
+          <p>The next scheduled run will try the AI and technology news feeds again.</p>
+        </li>`;
+  }
+
+  return newsItems.map((item, index) => `        <li>
+          <p class="pub-year">News ${String(index + 1).padStart(2, "0")} | ${escapeHtml(item.published || date)}</p>
+          <h2><a href="${escapeHtml(item.url)}">${escapeHtml(item.title)}</a></h2>
+          <p><strong>Source:</strong> ${escapeHtml(item.source)}</p>
+          <p><strong>Track:</strong> ${escapeHtml(item.track)}</p>
+        </li>`).join("\n");
+};
+
+const renderPaperItems = (papers, date) => {
+  if (!papers.length) {
+    return `        <li>
+          <p class="pub-year">Research</p>
+          <h2>No arXiv papers were available for ${escapeHtml(date)}</h2>
+          <p>The next scheduled run will try the research feed again.</p>
+        </li>`;
+  }
+
+  return papers.map((paper, index) => {
     const authors = paper.authors.slice(0, 6).join(", ");
     const authorText = paper.authors.length > 6 ? `${authors}, et al.` : authors;
     const categories = paper.categories.slice(0, 4).join(", ");
     return `        <li>
-          <p class="pub-year">${String(index + 1).padStart(2, "0")} | ${escapeHtml(paper.published || paper.updated || date)}</p>
+          <p class="pub-year">Paper ${String(index + 1).padStart(2, "0")} | ${escapeHtml(paper.published || paper.updated || date)}</p>
           <h2><a href="${escapeHtml(paper.url)}">${escapeHtml(paper.title)}</a></h2>
           <p><strong>Authors:</strong> ${escapeHtml(authorText || "Not listed")}</p>
           <p><strong>Topics:</strong> ${escapeHtml(categories || "AI research")}</p>
           <p>${escapeHtml(abstractPreview(paper.summary))}</p>
         </li>`;
   }).join("\n");
+};
 
-  return `${renderHeader(`Daily AI Research Digest | ${date}`, "../../", "../../")}
+const renderPost = ({ date, papers, newsItems }) => `${renderHeader(`Daily AI and Tech Digest | ${date}`, "../../", "../../")}
 
   <main id="main">
     <article class="section blog-post">
-      <p class="eyebrow">Daily AI Research Digest</p>
-      <h1>AI research digest for ${escapeHtml(date)}</h1>
-      <p class="blog-meta">Published by the Transformer Lab research agent. Sources: arXiv recent submissions.</p>
+      <p class="eyebrow">Daily AI and Tech Digest</p>
+      <h1>AI and tech digest for ${escapeHtml(date)}</h1>
+      <p class="blog-meta">Published by the Transformer Lab agent. Sources: AI/tech RSS feeds and arXiv recent submissions.</p>
       <p>
-        Today's digest highlights recent AI papers connected to language models,
-        learning systems, agents, computer vision, multi-agent intelligence, and
-        research computing. Use it as a fast reading map, then follow the source
-        links for the full papers.
+        Today's digest combines source-linked AI news, broader technology headlines,
+        and recent research papers. It is meant as a fast reading map for students,
+        teachers, and collaborators who want to understand what is moving from
+        labs into real products and systems.
       </p>
-      <ul class="paper-list">
-${paperItems}
-      </ul>
+
+      <section class="digest-section" aria-labelledby="news-title">
+        <h2 id="news-title">Latest AI and tech news</h2>
+        <p>Headline-only links to original sources, grouped for quick scanning.</p>
+        <ul class="paper-list">
+${renderNewsItems(newsItems, date)}
+        </ul>
+      </section>
+
+      <section class="digest-section" aria-labelledby="papers-title">
+        <h2 id="papers-title">Recent research papers</h2>
+        <p>Recent arXiv submissions selected from AI, machine learning, language, vision, agents, and statistical learning categories.</p>
+        <ul class="paper-list">
+${renderPaperItems(papers, date)}
+        </ul>
+      </section>
+
       <p><a class="text-link" href="../">Back to all posts</a></p>
     </article>
   </main>
 
 ${renderFooter("../../")}`;
-};
 
 const renderIndex = (posts) => {
   const postCards = posts.map((post) => `        <article class="blog-card">
@@ -233,19 +387,19 @@ const renderIndex = (posts) => {
           <p>${escapeHtml(post.summary)}</p>
         </article>`).join("\n");
 
-  return `${renderHeader("AI Research Blog | Transformer Lab", "../", "../")}
+  return `${renderHeader("AI and Tech Blog | Transformer Lab", "../", "../")}
 
   <main id="main">
     <section class="section section-band blog-page">
       <div class="section-heading">
         <p class="eyebrow">Transformer Lab</p>
-        <h1>Daily AI research digest</h1>
+        <h1>Daily AI and tech digest</h1>
       </div>
       <div class="research-intro">
         <p>
-          A daily, source-linked scan of recent AI, machine learning, language model,
-          multi-agent, and research computing papers. The digest is generated by the
-          Transformer Lab research agent.
+          A daily, source-linked scan of AI news, technology news, product updates,
+          and recent research papers. The digest is generated by the Transformer Lab
+          agent for students, teachers, and collaborators.
         </p>
       </div>
       <div class="blog-index-list">
@@ -262,22 +416,28 @@ const main = async () => {
   await mkdir(dataDir, { recursive: true });
 
   const date = process.env.BLOG_DATE || formatLosAngelesDate();
-  const papers = await fetchRecentPapers();
-  if (!papers.length) {
-    throw new Error("No papers returned from arXiv");
+  const [papersResult, newsResult] = await Promise.allSettled([
+    fetchRecentPapers(),
+    fetchNewsItems()
+  ]);
+  const papers = papersResult.status === "fulfilled" ? papersResult.value : [];
+  const newsItems = newsResult.status === "fulfilled" ? newsResult.value : [];
+
+  if (!papers.length && !newsItems.length) {
+    throw new Error("No news or research items were returned");
   }
 
-  const slug = `${date}-ai-research-digest`;
+  const slug = `${date}-ai-tech-digest`;
   const postUrl = `blog/posts/${slug}.html`;
-  const title = `AI research digest for ${date}`;
-  const summary = `A source-linked digest of ${papers.length} recent AI papers across language models, machine learning, agents, and research computing.`;
+  const title = `AI and tech digest for ${date}`;
+  const summary = `A source-linked digest of ${newsItems.length} AI/tech headlines and ${papers.length} recent research papers.`;
   const post = { date, title, summary, url: postUrl };
 
-  await writeFile(path.join(postsDir, `${slug}.html`), renderPost({ date, papers }), "utf8");
+  await writeFile(path.join(postsDir, `${slug}.html`), renderPost({ date, papers, newsItems }), "utf8");
 
   const postsPath = path.join(dataDir, "posts.json");
   const oldPosts = await readJson(postsPath, []);
-  const posts = [post, ...oldPosts.filter((item) => item.url !== post.url)].slice(0, maxStoredPosts);
+  const posts = [post, ...oldPosts.filter((item) => item.date !== date && item.url !== post.url)].slice(0, maxStoredPosts);
 
   await writeFile(postsPath, `${JSON.stringify(posts, null, 2)}\n`, "utf8");
   await writeFile(path.join(dataDir, "latest.json"), `${JSON.stringify(post, null, 2)}\n`, "utf8");
