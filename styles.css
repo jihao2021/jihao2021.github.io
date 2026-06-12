@@ -612,6 +612,38 @@ a:hover {
   padding: 1.25rem;
 }
 
+.paper-list li.digest-card {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.34fr) minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: stretch;
+  padding: 0;
+  overflow: hidden;
+}
+
+.digest-card-media {
+  min-height: 190px;
+  background: var(--paper);
+  border-right: 1px solid var(--line);
+}
+
+.digest-card-media img,
+.digest-visual-strip img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.digest-card-media-contain img {
+  object-fit: contain;
+  padding: 0.7rem;
+  background: var(--white);
+}
+
+.digest-card-body {
+  padding: 1.25rem 1.25rem 1.25rem 0;
+}
+
 .paper-list h2 {
   margin: 0.3rem 0 0.5rem;
   font-size: 1.12rem;
@@ -638,6 +670,20 @@ a:hover {
 .digest-section > p {
   margin: 0 0 1rem;
   color: var(--muted);
+}
+
+.digest-visual-strip {
+  display: grid;
+  grid-template-columns: 1.4fr 0.9fr 0.9fr;
+  gap: 0.75rem;
+  margin: 1.8rem 0 2rem;
+}
+
+.digest-visual-strip img {
+  aspect-ratio: 16 / 10;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--white);
 }
 
 .research-intro {
@@ -915,6 +961,20 @@ a:hover {
   .join-panel {
     grid-template-columns: 1fr;
     padding: 1.5rem;
+  }
+
+  .paper-list li.digest-card,
+  .digest-visual-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .digest-card-media {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .digest-card-body {
+    padding: 1.25rem;
   }
 
   .site-footer {

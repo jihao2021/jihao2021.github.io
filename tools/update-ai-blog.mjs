@@ -9,7 +9,19 @@ const dataDir = path.join(blogDir, "data");
 const maxNewsItems = Number.parseInt(process.env.BLOG_MAX_NEWS || "10", 10);
 const maxPapers = Number.parseInt(process.env.BLOG_MAX_PAPERS || "6", 10);
 const maxStoredPosts = Number.parseInt(process.env.BLOG_MAX_STORED_POSTS || "60", 10);
-const assetVersion = "20260612b";
+const assetVersion = "20260612c";
+const fallbackImages = [
+  "assets/hero-paper-01.jpg",
+  "assets/hero-paper-02.jpg",
+  "assets/hero-paper-03.png",
+  "assets/hero-paper-04.jpg",
+  "assets/hero-paper-05.jpg",
+  "assets/hero-paper-06.jpg",
+  "assets/hero-paper-07.jpg",
+  "assets/hero-paper-08.jpg",
+  "assets/hero-paper-09.jpg",
+  "assets/hero-paper-10.jpg"
+];
 
 const arxivTopics = [
   "cat:cs.AI",
@@ -121,6 +133,12 @@ const getBlocks = (xml, tagName) =>
   [...xml.matchAll(new RegExp(`<${tagName}\\b[^>]*>([\\s\\S]*?)<\\/${tagName}>`, "gi"))]
     .map((match) => match[1]);
 
+const getAttribute = (tag, attributeName) => {
+  const escaped = attributeName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = tag.match(new RegExp(`${escaped}\\s*=\\s*["']([^"']+)["']`, "i"));
+  return match ? decodeEntities(match[1]) : "";
+};
+
 const getAuthors = (xml) =>
   [...xml.matchAll(/<author>\s*<name>([\s\S]*?)<\/name>\s*<\/author>/gi)]
     .map((match) => normalizeWhitespace(match[1]))
@@ -157,6 +175,39 @@ const getFeedLink = (xml) => {
   return guid ? normalizeWhitespace(guid[1]) : "";
 };
 
+const normalizeImageUrl = (value, baseUrl) => {
+  const imageUrl = decodeEntities(value || "").trim();
+  if (!imageUrl || imageUrl.startsWith("data:")) {
+    return "";
+  }
+
+  try {
+    const normalized = imageUrl.startsWith("//")
+      ? `https:${imageUrl}`
+      : new URL(imageUrl, baseUrl).toString();
+    return /^https?:\/\//i.test(normalized) ? normalized : "";
+  } catch {
+    return "";
+  }
+};
+
+const findFeedImage = (block, sourceUrl) => {
+  const mediaTag = block.match(/<media:(?:content|thumbnail)\b[^>]*>/i);
+  const enclosureTag = block.match(/<enclosure\b[^>]*>/i);
+  const imageTag = block.match(/<image\b[^>]*>/i);
+  const imageUrlTag = block.match(/<image>\s*<url>([\s\S]*?)<\/url>\s*<\/image>/i);
+  const imgTag = block.match(/<img\b[^>]*src=["']([^"']+)["'][^>]*>/i);
+
+  return normalizeImageUrl(mediaTag ? getAttribute(mediaTag[0], "url") : "", sourceUrl)
+    || normalizeImageUrl(enclosureTag ? getAttribute(enclosureTag[0], "url") : "", sourceUrl)
+    || normalizeImageUrl(imageTag ? getAttribute(imageTag[0], "href") || getAttribute(imageTag[0], "url") : "", sourceUrl)
+    || normalizeImageUrl(imageUrlTag ? imageUrlTag[1] : "", sourceUrl)
+    || normalizeImageUrl(imgTag ? imgTag[1] : "", sourceUrl);
+};
+
+const fallbackImage = (index, prefix = "") =>
+  `${prefix}${fallbackImages[index % fallbackImages.length]}`;
+
 const abstractPreview = (abstract) => {
   const words = normalizeWhitespace(abstract).split(" ").filter(Boolean);
   if (words.length <= 34) {
@@ -184,14 +235,15 @@ const fetchRecentPapers = async () => {
   }
 
   const xml = await response.text();
-  return getBlocks(xml, "entry").map((entry) => ({
+  return getBlocks(xml, "entry").map((entry, index) => ({
     title: getTag(entry, "title"),
     summary: getTag(entry, "summary"),
     published: getTag(entry, "published").slice(0, 10),
     updated: getTag(entry, "updated").slice(0, 10),
     authors: getAuthors(entry),
     categories: getCategories(entry),
-    url: getAlternateLink(entry)
+    url: getAlternateLink(entry),
+    image: fallbackImage(index + 2, "../../")
   })).filter((paper) => paper.title && paper.url);
 };
 
@@ -208,14 +260,15 @@ const fetchFeedItems = async (source) => {
 
   const xml = await response.text();
   const blocks = getBlocks(xml, "item").length ? getBlocks(xml, "item") : getBlocks(xml, "entry");
-  return blocks.slice(0, 8).map((block) => {
+  return blocks.slice(0, 8).map((block, index) => {
     const publishedRaw = getTag(block, "pubDate") || getTag(block, "published") || getTag(block, "updated");
     return {
       title: getTag(block, "title"),
       published: formatSourceDate(publishedRaw, ""),
       source: source.name,
       track: source.track,
-      url: getFeedLink(block)
+      url: getFeedLink(block),
+      image: findFeedImage(block, source.url) || fallbackImage(index, "../../")
     };
   }).filter((item) => item.title && item.url);
 };
@@ -313,11 +366,16 @@ const renderNewsItems = (newsItems, date) => {
         </li>`;
   }
 
-  return newsItems.map((item, index) => `        <li>
-          <p class="pub-year">News ${String(index + 1).padStart(2, "0")} | ${escapeHtml(item.published || date)}</p>
-          <h2><a href="${escapeHtml(item.url)}">${escapeHtml(item.title)}</a></h2>
-          <p><strong>Source:</strong> ${escapeHtml(item.source)}</p>
-          <p><strong>Track:</strong> ${escapeHtml(item.track)}</p>
+  return newsItems.map((item, index) => `        <li class="digest-card">
+          <a class="digest-card-media" href="${escapeHtml(item.url)}" aria-label="${escapeHtml(item.title)}">
+            <img src="${escapeHtml(item.image || fallbackImage(index, "../../"))}" alt="" loading="lazy">
+          </a>
+          <div class="digest-card-body">
+            <p class="pub-year">News ${String(index + 1).padStart(2, "0")} | ${escapeHtml(item.published || date)}</p>
+            <h2><a href="${escapeHtml(item.url)}">${escapeHtml(item.title)}</a></h2>
+            <p><strong>Source:</strong> ${escapeHtml(item.source)}</p>
+            <p><strong>Track:</strong> ${escapeHtml(item.track)}</p>
+          </div>
         </li>`).join("\n");
 };
 
@@ -334,14 +392,43 @@ const renderPaperItems = (papers, date) => {
     const authors = paper.authors.slice(0, 6).join(", ");
     const authorText = paper.authors.length > 6 ? `${authors}, et al.` : authors;
     const categories = paper.categories.slice(0, 4).join(", ");
-    return `        <li>
-          <p class="pub-year">Paper ${String(index + 1).padStart(2, "0")} | ${escapeHtml(paper.published || paper.updated || date)}</p>
-          <h2><a href="${escapeHtml(paper.url)}">${escapeHtml(paper.title)}</a></h2>
-          <p><strong>Authors:</strong> ${escapeHtml(authorText || "Not listed")}</p>
-          <p><strong>Topics:</strong> ${escapeHtml(categories || "AI research")}</p>
-          <p>${escapeHtml(abstractPreview(paper.summary))}</p>
+    return `        <li class="digest-card">
+          <a class="digest-card-media digest-card-media-contain" href="${escapeHtml(paper.url)}" aria-label="${escapeHtml(paper.title)}">
+            <img src="${escapeHtml(paper.image || fallbackImage(index + 4, "../../"))}" alt="" loading="lazy">
+          </a>
+          <div class="digest-card-body">
+            <p class="pub-year">Paper ${String(index + 1).padStart(2, "0")} | ${escapeHtml(paper.published || paper.updated || date)}</p>
+            <h2><a href="${escapeHtml(paper.url)}">${escapeHtml(paper.title)}</a></h2>
+            <p><strong>Authors:</strong> ${escapeHtml(authorText || "Not listed")}</p>
+            <p><strong>Topics:</strong> ${escapeHtml(categories || "AI research")}</p>
+            <p>${escapeHtml(abstractPreview(paper.summary))}</p>
+          </div>
         </li>`;
   }).join("\n");
+};
+
+const renderVisualStrip = (newsItems, papers) => {
+  const images = [];
+  const addImage = (image) => {
+    if (image && !images.includes(image)) {
+      images.push(image);
+    }
+  };
+
+  [
+    ...newsItems.map((item) => item.image),
+    ...papers.map((paper) => paper.image)
+  ].forEach(addImage);
+
+  let fallbackIndex = 0;
+  while (images.length < 3 && fallbackIndex < fallbackImages.length) {
+    addImage(fallbackImage(fallbackIndex, "../../"));
+    fallbackIndex += 1;
+  }
+
+  return `      <div class="digest-visual-strip" aria-label="Digest visuals">
+${images.slice(0, 3).map((image, index) => `        <img src="${escapeHtml(image)}" alt="" loading="${index === 0 ? "eager" : "lazy"}">`).join("\n")}
+      </div>`;
 };
 
 const renderPost = ({ date, papers, newsItems }) => `${renderHeader(`Daily AI and Tech Digest | ${date}`, "../../", "../../")}
@@ -357,6 +444,7 @@ const renderPost = ({ date, papers, newsItems }) => `${renderHeader(`Daily AI an
         teachers, and collaborators who want to understand what is moving from
         labs into real products and systems.
       </p>
+${renderVisualStrip(newsItems, papers)}
 
       <section class="digest-section" aria-labelledby="news-title">
         <h2 id="news-title">Latest AI and tech news</h2>
