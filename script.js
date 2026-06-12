@@ -66,3 +66,50 @@ if (slides.length > 1) {
 } else if (slides.length === 1) {
   setActiveSlide(0);
 }
+
+const latestBlogCard = document.querySelector("[data-blog-latest]");
+
+const renderLatestBlogPost = (post) => {
+  if (!latestBlogCard || !post) {
+    return;
+  }
+
+  const kicker = document.createElement("p");
+  kicker.className = "blog-kicker";
+  kicker.textContent = post.date ? `Latest digest | ${post.date}` : "Latest digest";
+
+  const title = document.createElement("h3");
+  title.textContent = (post.title || "Daily AI research digest").replace(
+    / for \d{4}-\d{2}-\d{2}$/,
+    ""
+  );
+
+  const summary = document.createElement("p");
+  summary.textContent = post.summary || "Fresh AI research notes from Transformer Lab.";
+
+  const link = document.createElement("a");
+  link.className = "text-link";
+  link.href = post.url || "blog/";
+  link.textContent = "Read the latest post";
+
+  latestBlogCard.replaceChildren(kicker, title, summary, link);
+};
+
+if (latestBlogCard) {
+  fetch("blog/data/latest.json", { cache: "no-store" })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("No latest blog post found");
+      }
+
+      return response.json();
+    })
+    .then(renderLatestBlogPost)
+    .catch(() => {
+      renderLatestBlogPost({
+        title: "Daily AI research digest",
+        summary: "The automated digest will appear here after the next scheduled run.",
+        url: "blog/"
+      });
+    });
+}

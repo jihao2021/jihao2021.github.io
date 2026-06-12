@@ -1,0 +1,36 @@
+name: Daily AI research blog
+
+on:
+  schedule:
+    - cron: "0 15 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out site
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Generate daily digest
+        run: node tools/update-ai-blog.mjs
+
+      - name: Commit daily digest
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet; then
+            echo "No blog changes to publish."
+          else
+            git add blog/
+            git commit -m "Publish daily AI research digest"
+            git push
+          fi

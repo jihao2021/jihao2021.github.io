@@ -215,8 +215,8 @@ a:hover {
 .hero h1 {
   margin: 0;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(3.4rem, 7vw, 6.4rem);
-  line-height: 0.9;
+  font-size: clamp(3.2rem, 5.6vw, 5rem);
+  line-height: 0.95;
   letter-spacing: 0;
 }
 
@@ -254,6 +254,12 @@ a:hover {
 .button.secondary {
   border-color: rgba(255, 255, 255, 0.68);
   color: var(--white);
+}
+
+.button.quiet {
+  border-color: rgba(153, 0, 0, 0.22);
+  background: var(--white);
+  color: var(--usc-cardinal);
 }
 
 .hero-visual {
@@ -368,9 +374,15 @@ a:hover {
 
 .highlights,
 .projects,
+.blog-preview,
 .publications,
 #cv {
   background: var(--soft);
+  padding: 3.25rem 0;
+}
+
+.lab {
+  background: var(--paper);
   padding: 3.25rem 0;
 }
 
@@ -395,6 +407,38 @@ a:hover {
   max-width: var(--max);
 }
 
+.lab-panel {
+  display: grid;
+  grid-template-columns: 0.8fr 1fr;
+  gap: 3rem;
+  align-items: start;
+  padding: 2rem;
+  background: var(--white);
+  border: 1px solid rgba(153, 0, 0, 0.16);
+  border-radius: var(--radius);
+  box-shadow: 0 14px 42px rgba(45, 18, 10, 0.07);
+}
+
+.lab-panel .section-heading {
+  margin-bottom: 0;
+}
+
+.lab-copy {
+  color: #333943;
+  font-size: 1.08rem;
+}
+
+.lab-copy p:first-child {
+  margin-top: 0;
+}
+
+.lab-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-top: 1.45rem;
+}
+
 .highlight-grid,
 .theme-grid,
 .contact-grid,
@@ -412,6 +456,12 @@ a:hover {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
+.blog-preview-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+  gap: 1rem;
+}
+
 .project-list,
 .publication-list {
   display: grid;
@@ -427,7 +477,8 @@ a:hover {
 .project-list article,
 .publication-list article,
 .contact-grid > div,
-.person-card {
+.person-card,
+.blog-card {
   background: var(--white);
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -443,14 +494,16 @@ a:hover {
 .theme-card:hover,
 .project-list article:hover,
 .publication-list article:hover,
-.person-card:hover {
+.person-card:hover,
+.blog-card:hover {
   border-color: rgba(153, 0, 0, 0.34);
   box-shadow: 0 12px 32px rgba(45, 18, 10, 0.08);
 }
 
 .card-index,
 .project-tag,
-.pub-year {
+.pub-year,
+.blog-kicker {
   margin: 0;
   color: var(--usc-cardinal);
   font-size: 0.78rem;
@@ -462,9 +515,16 @@ a:hover {
 .highlight-grid h3,
 .theme-card h3,
 .project-list h3,
-.contact-grid h3 {
+.contact-grid h3,
+.blog-card h3 {
   margin: 0.75rem 0 0.55rem;
   line-height: 1.2;
+}
+
+.blog-card h3 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.35rem, 2.2vw, 1.9rem);
+  letter-spacing: 0;
 }
 
 .person-card h4 {
@@ -484,7 +544,82 @@ a:hover {
 .project-list p:not(.project-tag),
 .publication-list p:not(.pub-year),
 .contact-grid p,
-.person-card p {
+.person-card p,
+.blog-card p:not(.blog-kicker) {
+  color: var(--muted);
+}
+
+.blog-card-feature {
+  min-height: 230px;
+}
+
+.blog-meta {
+  margin-top: 0.8rem;
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+
+.blog-page {
+  background: var(--soft);
+  min-height: calc(100svh - 170px);
+  padding: 3.25rem 0;
+}
+
+.blog-page .section-heading h1,
+.blog-post h1 {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2.1rem, 4vw, 3.4rem);
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.blog-index-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.blog-index-list h2 {
+  margin: 0.75rem 0 0.5rem;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.35rem, 2.2vw, 1.9rem);
+  line-height: 1.15;
+  letter-spacing: 0;
+}
+
+.blog-index-list h2 a {
+  color: var(--ink);
+}
+
+.blog-post {
+  max-width: 880px;
+  color: #333943;
+  font-size: 1.08rem;
+}
+
+.paper-list {
+  display: grid;
+  gap: 1rem;
+  margin: 2rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.paper-list li {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+}
+
+.paper-list h2 {
+  margin: 0.3rem 0 0.5rem;
+  font-size: 1.12rem;
+  line-height: 1.25;
+}
+
+.paper-list p {
+  margin: 0.45rem 0;
   color: var(--muted);
 }
 
@@ -670,12 +805,13 @@ a:hover {
 
   .theme-grid,
   .collaborator-people-grid,
+  .blog-preview-grid,
   .project-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 960px) {
+@media (max-width: 1160px) {
   .nav-toggle {
     display: block;
     flex: 0 0 auto;
@@ -729,7 +865,7 @@ a:hover {
   }
 
   .hero h1 {
-    font-size: clamp(3rem, 17vw, 4.6rem);
+    font-size: clamp(3rem, 13vw, 3.8rem);
   }
 
   .hero-copy {
@@ -742,6 +878,7 @@ a:hover {
   }
 
   .intro,
+  .lab-panel,
   .highlight-grid,
   .people-grid,
   .contact-grid,
@@ -789,9 +926,11 @@ a:hover {
 
   .highlights,
   .projects,
+  .blog-preview,
   .publications,
   .students,
   .collaborators,
+  .lab,
   #research,
   #cv {
     padding: 2.4rem 0;
@@ -808,6 +947,7 @@ a:hover {
 
   .theme-grid,
   .collaborator-people-grid,
+  .blog-preview-grid,
   .project-list {
     grid-template-columns: 1fr;
   }
