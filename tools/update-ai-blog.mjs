@@ -9,19 +9,7 @@ const dataDir = path.join(blogDir, "data");
 const maxNewsItems = Number.parseInt(process.env.BLOG_MAX_NEWS || "10", 10);
 const maxPapers = Number.parseInt(process.env.BLOG_MAX_PAPERS || "6", 10);
 const maxStoredPosts = Number.parseInt(process.env.BLOG_MAX_STORED_POSTS || "60", 10);
-const assetVersion = "20260612c";
-const fallbackImages = [
-  "assets/hero-paper-01.jpg",
-  "assets/hero-paper-02.jpg",
-  "assets/hero-paper-03.png",
-  "assets/hero-paper-04.jpg",
-  "assets/hero-paper-05.jpg",
-  "assets/hero-paper-06.jpg",
-  "assets/hero-paper-07.jpg",
-  "assets/hero-paper-08.jpg",
-  "assets/hero-paper-09.jpg",
-  "assets/hero-paper-10.jpg"
-];
+const assetVersion = "20260612d";
 
 const arxivTopics = [
   "cat:cs.AI",
@@ -205,8 +193,64 @@ const findFeedImage = (block, sourceUrl) => {
     || normalizeImageUrl(imgTag ? imgTag[1] : "", sourceUrl);
 };
 
-const fallbackImage = (index, prefix = "") =>
-  `${prefix}${fallbackImages[index % fallbackImages.length]}`;
+const findMetaImage = (html, baseUrl) => {
+  const metaTags = html.match(/<meta\b[^>]*>/gi) || [];
+  const preferredNames = new Set([
+    "og:image",
+    "og:image:url",
+    "og:image:secure_url",
+    "twitter:image",
+    "twitter:image:src",
+    "thumbnail"
+  ]);
+
+  for (const tag of metaTags) {
+    const key = (
+      getAttribute(tag, "property")
+      || getAttribute(tag, "name")
+      || getAttribute(tag, "itemprop")
+    ).toLowerCase();
+    if (!preferredNames.has(key)) {
+      continue;
+    }
+
+    const image = normalizeImageUrl(getAttribute(tag, "content"), baseUrl);
+    if (image) {
+      return image;
+    }
+  }
+
+  const imageLink = (html.match(/<link\b[^>]*rel=["'][^"']*image_src[^"']*["'][^>]*>/i) || [])[0];
+  return normalizeImageUrl(imageLink ? getAttribute(imageLink, "href") : "", baseUrl);
+};
+
+const fetchArticleImage = async (url) => {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 7000);
+    const response = await fetch(url, {
+      headers: {
+        "Accept": "text/html,application/xhtml+xml",
+        "User-Agent": "TransformerLabDailyBlog/1.0"
+      },
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
+
+    if (!response.ok) {
+      return "";
+    }
+
+    const contentType = response.headers.get("content-type") || "";
+    if (contentType && !contentType.includes("html") && !contentType.includes("xml")) {
+      return "";
+    }
+
+    return findMetaImage(await response.text(), response.url || url);
+  } catch {
+    return "";
+  }
+};
 
 const abstractPreview = (abstract) => {
   const words = normalizeWhitespace(abstract).split(" ").filter(Boolean);
@@ -235,15 +279,14 @@ const fetchRecentPapers = async () => {
   }
 
   const xml = await response.text();
-  return getBlocks(xml, "entry").map((entry, index) => ({
+  return getBlocks(xml, "entry").map((entry) => ({
     title: getTag(entry, "title"),
     summary: getTag(entry, "summary"),
     published: getTag(entry, "published").slice(0, 10),
     updated: getTag(entry, "updated").slice(0, 10),
     authors: getAuthors(entry),
     categories: getCategories(entry),
-    url: getAlternateLink(entry),
-    image: fallbackImage(index + 2, "../../")
+    url: getAlternateLink(entry)
   })).filter((paper) => paper.title && paper.url);
 };
 
@@ -260,7 +303,7 @@ const fetchFeedItems = async (source) => {
 
   const xml = await response.text();
   const blocks = getBlocks(xml, "item").length ? getBlocks(xml, "item") : getBlocks(xml, "entry");
-  return blocks.slice(0, 8).map((block, index) => {
+  return blocks.slice(0, 8).map((block) => {
     const publishedRaw = getTag(block, "pubDate") || getTag(block, "published") || getTag(block, "updated");
     return {
       title: getTag(block, "title"),
@@ -268,9 +311,20 @@ const fetchFeedItems = async (source) => {
       source: source.name,
       track: source.track,
       url: getFeedLink(block),
-      image: findFeedImage(block, source.url) || fallbackImage(index, "../../")
+      image: findFeedImage(block, source.url)
     };
   }).filter((item) => item.title && item.url);
+};
+
+const enrichNewsItemImages = async (items) => {
+  const settled = await Promise.allSettled(items.map(async (item) => ({
+    ...item,
+    image: item.image || await fetchArticleImage(item.url)
+  })));
+
+  return settled.map((result, index) =>
+    result.status === "fulfilled" ? result.value : items[index]
+  );
 };
 
 const fetchNewsItems = async () => {
@@ -287,9 +341,11 @@ const fetchNewsItems = async () => {
     return true;
   });
 
-  return unique
+  const selected = unique
     .sort((a, b) => new Date(b.published || 0) - new Date(a.published || 0))
     .slice(0, maxNewsItems);
+
+  return enrichNewsItemImages(selected);
 };
 
 const readJson = async (filePath, fallback) => {
@@ -366,9 +422,19 @@ const renderNewsItems = (newsItems, date) => {
         </li>`;
   }
 
-  return newsItems.map((item, index) => `        <li class="digest-card">
+  return newsItems.map((item, index) => {
+    if (!item.image) {
+      return `        <li>
+          <p class="pub-year">News ${String(index + 1).padStart(2, "0")} | ${escapeHtml(item.published || date)}</p>
+          <h2><a href="${escapeHtml(item.url)}">${escapeHtml(item.title)}</a></h2>
+          <p><strong>Source:</strong> ${escapeHtml(item.source)}</p>
+          <p><strong>Track:</strong> ${escapeHtml(item.track)}</p>
+        </li>`;
+    }
+
+    return `        <li class="digest-card">
           <a class="digest-card-media" href="${escapeHtml(item.url)}" aria-label="${escapeHtml(item.title)}">
-            <img src="${escapeHtml(item.image || fallbackImage(index, "../../"))}" alt="" loading="lazy">
+            <img src="${escapeHtml(item.image)}" alt="" loading="lazy">
           </a>
           <div class="digest-card-body">
             <p class="pub-year">News ${String(index + 1).padStart(2, "0")} | ${escapeHtml(item.published || date)}</p>
@@ -376,7 +442,8 @@ const renderNewsItems = (newsItems, date) => {
             <p><strong>Source:</strong> ${escapeHtml(item.source)}</p>
             <p><strong>Track:</strong> ${escapeHtml(item.track)}</p>
           </div>
-        </li>`).join("\n");
+        </li>`;
+  }).join("\n");
 };
 
 const renderPaperItems = (papers, date) => {
@@ -392,22 +459,17 @@ const renderPaperItems = (papers, date) => {
     const authors = paper.authors.slice(0, 6).join(", ");
     const authorText = paper.authors.length > 6 ? `${authors}, et al.` : authors;
     const categories = paper.categories.slice(0, 4).join(", ");
-    return `        <li class="digest-card">
-          <a class="digest-card-media digest-card-media-contain" href="${escapeHtml(paper.url)}" aria-label="${escapeHtml(paper.title)}">
-            <img src="${escapeHtml(paper.image || fallbackImage(index + 4, "../../"))}" alt="" loading="lazy">
-          </a>
-          <div class="digest-card-body">
-            <p class="pub-year">Paper ${String(index + 1).padStart(2, "0")} | ${escapeHtml(paper.published || paper.updated || date)}</p>
-            <h2><a href="${escapeHtml(paper.url)}">${escapeHtml(paper.title)}</a></h2>
-            <p><strong>Authors:</strong> ${escapeHtml(authorText || "Not listed")}</p>
-            <p><strong>Topics:</strong> ${escapeHtml(categories || "AI research")}</p>
-            <p>${escapeHtml(abstractPreview(paper.summary))}</p>
-          </div>
+    return `        <li>
+          <p class="pub-year">Paper ${String(index + 1).padStart(2, "0")} | ${escapeHtml(paper.published || paper.updated || date)}</p>
+          <h2><a href="${escapeHtml(paper.url)}">${escapeHtml(paper.title)}</a></h2>
+          <p><strong>Authors:</strong> ${escapeHtml(authorText || "Not listed")}</p>
+          <p><strong>Topics:</strong> ${escapeHtml(categories || "AI research")}</p>
+          <p>${escapeHtml(abstractPreview(paper.summary))}</p>
         </li>`;
   }).join("\n");
 };
 
-const renderVisualStrip = (newsItems, papers) => {
+const renderVisualStrip = (newsItems) => {
   const images = [];
   const addImage = (image) => {
     if (image && !images.includes(image)) {
@@ -415,15 +477,9 @@ const renderVisualStrip = (newsItems, papers) => {
     }
   };
 
-  [
-    ...newsItems.map((item) => item.image),
-    ...papers.map((paper) => paper.image)
-  ].forEach(addImage);
-
-  let fallbackIndex = 0;
-  while (images.length < 3 && fallbackIndex < fallbackImages.length) {
-    addImage(fallbackImage(fallbackIndex, "../../"));
-    fallbackIndex += 1;
+  newsItems.map((item) => item.image).forEach(addImage);
+  if (!images.length) {
+    return "";
   }
 
   return `      <div class="digest-visual-strip" aria-label="Digest visuals">
@@ -444,7 +500,7 @@ const renderPost = ({ date, papers, newsItems }) => `${renderHeader(`Daily AI an
         teachers, and collaborators who want to understand what is moving from
         labs into real products and systems.
       </p>
-${renderVisualStrip(newsItems, papers)}
+${renderVisualStrip(newsItems)}
 
       <section class="digest-section" aria-labelledby="news-title">
         <h2 id="news-title">Latest AI and tech news</h2>
