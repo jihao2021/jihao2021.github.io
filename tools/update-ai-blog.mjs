@@ -8,6 +8,7 @@ const postsDir = path.join(blogDir, "posts");
 const dataDir = path.join(blogDir, "data");
 const maxNewsItems = Number.parseInt(process.env.BLOG_MAX_NEWS || "10", 10);
 const maxPapers = Number.parseInt(process.env.BLOG_MAX_PAPERS || "6", 10);
+const arxivPoolSize = Number.parseInt(process.env.BLOG_ARXIV_POOL || String(Math.max(48, maxPapers * 8)), 10);
 const maxStoredPosts = Number.parseInt(process.env.BLOG_MAX_STORED_POSTS || "60", 10);
 const assetVersion = "20260613c";
 
@@ -19,6 +20,8 @@ const arxivTopics = [
   "cat:cs.MA",
   "cat:stat.ML"
 ];
+
+const arxivTopicNames = arxivTopics.map((topic) => topic.replace(/^cat:/, ""));
 
 const newsSources = [
   {
@@ -147,6 +150,109 @@ const getAlternateLink = (xml) => {
   return fallback ? normalizeWhitespace(fallback[1]) : "";
 };
 
+const normalizePaperUrl = (url) => {
+  try {
+    const parsed = new URL(url);
+    if (parsed.hostname.endsWith("arxiv.org")) {
+      const id = parsed.pathname.replace(/^\/abs\//, "").replace(/v\d+$/i, "");
+      return `arxiv:${id.toLowerCase()}`;
+    }
+
+    return parsed.toString().replace(/v\d+$/i, "").toLowerCase();
+  } catch {
+    return String(url || "").replace(/v\d+$/i, "").toLowerCase();
+  }
+};
+
+const paperTopic = (paper) =>
+  paper.categories.find((category) => arxivTopicNames.includes(category))
+  || paper.categories[0]
+  || "AI research";
+
+const collectPreviouslyFeaturedPaperUrls = async (posts) => {
+  const recentPosts = posts.slice(0, 14);
+  const urlSets = await Promise.all(recentPosts.map(async (post) => {
+    if (!post?.url) {
+      return [];
+    }
+
+    const postPath = path.join(rootDir, post.url);
+    if (!existsSync(postPath)) {
+      return [];
+    }
+
+    const html = await readFile(postPath, "utf8");
+    return [...html.matchAll(/https?:\/\/arxiv\.org\/abs\/[^"'<\s]+/gi)]
+      .map((match) => normalizePaperUrl(match[0]));
+  }));
+
+  return new Set(urlSets.flat());
+};
+
+const selectDiversePapers = (papers, previouslyFeaturedUrls = new Set()) => {
+  const buckets = new Map();
+  const seen = new Set(previouslyFeaturedUrls);
+
+  for (const paper of papers) {
+    const normalizedUrl = normalizePaperUrl(paper.url);
+    if (!normalizedUrl || seen.has(normalizedUrl)) {
+      continue;
+    }
+
+    seen.add(normalizedUrl);
+    const topic = paperTopic(paper);
+    const bucket = buckets.get(topic) || [];
+    bucket.push(paper);
+    buckets.set(topic, bucket);
+  }
+
+  const selected = [];
+  const topicOrder = [
+    ...arxivTopicNames,
+    ...[...buckets.keys()].filter((topic) => !arxivTopicNames.includes(topic))
+  ];
+
+  while (selected.length < maxPapers) {
+    let added = false;
+    for (const topic of topicOrder) {
+      const next = buckets.get(topic)?.shift();
+      if (!next) {
+        continue;
+      }
+
+      selected.push(next);
+      added = true;
+      if (selected.length === maxPapers) {
+        break;
+      }
+    }
+
+    if (!added) {
+      break;
+    }
+  }
+
+  if (selected.length >= maxPapers) {
+    return selected;
+  }
+
+  const fallbackSeen = new Set(selected.map((paper) => normalizePaperUrl(paper.url)));
+  for (const paper of papers) {
+    const normalizedUrl = normalizePaperUrl(paper.url);
+    if (fallbackSeen.has(normalizedUrl)) {
+      continue;
+    }
+
+    fallbackSeen.add(normalizedUrl);
+    selected.push(paper);
+    if (selected.length === maxPapers) {
+      break;
+    }
+  }
+
+  return selected;
+};
+
 const getFeedLink = (xml) => {
   const atom = xml.match(/<link[^>]*rel="alternate"[^>]*href="([^"]+)"/i)
     || xml.match(/<link[^>]*href="([^"]+)"[^>]*rel="alternate"/i);
@@ -261,12 +367,12 @@ const abstractPreview = (abstract) => {
   return `${words.slice(0, 34).join(" ")}...`;
 };
 
-const fetchRecentPapers = async () => {
+const fetchRecentPapers = async (previouslyFeaturedUrls = new Set()) => {
   const params = new URLSearchParams({
     search_query: arxivTopics.join(" OR "),
     sortBy: "submittedDate",
     sortOrder: "descending",
-    max_results: String(maxPapers)
+    max_results: String(arxivPoolSize)
   });
   const response = await fetch(`https://export.arxiv.org/api/query?${params.toString()}`, {
     headers: {
@@ -279,7 +385,7 @@ const fetchRecentPapers = async () => {
   }
 
   const xml = await response.text();
-  return getBlocks(xml, "entry").map((entry) => ({
+  const papers = getBlocks(xml, "entry").map((entry) => ({
     title: getTag(entry, "title"),
     summary: getTag(entry, "summary"),
     published: getTag(entry, "published").slice(0, 10),
@@ -288,6 +394,8 @@ const fetchRecentPapers = async () => {
     categories: getCategories(entry),
     url: getAlternateLink(entry)
   })).filter((paper) => paper.title && paper.url);
+
+  return selectDiversePapers(papers, previouslyFeaturedUrls);
 };
 
 const fetchFeedItems = async (source) => {
@@ -512,7 +620,7 @@ ${renderNewsItems(newsItems, date)}
 
       <section class="digest-section" aria-labelledby="papers-title">
         <h2 id="papers-title">Recent research papers</h2>
-        <p>Recent arXiv submissions selected from AI, machine learning, language, vision, agents, and statistical learning categories.</p>
+        <p>Recent arXiv submissions selected for topic variety, with recent repeats filtered out when enough new papers are available.</p>
         <ul class="paper-list">
 ${renderPaperItems(papers, date)}
         </ul>
@@ -563,8 +671,11 @@ const main = async () => {
   await mkdir(dataDir, { recursive: true });
 
   const date = process.env.BLOG_DATE || formatLosAngelesDate();
+  const postsPath = path.join(dataDir, "posts.json");
+  const oldPosts = await readJson(postsPath, []);
+  const previouslyFeaturedPaperUrls = await collectPreviouslyFeaturedPaperUrls(oldPosts);
   const [papersResult, newsResult] = await Promise.allSettled([
-    fetchRecentPapers(),
+    fetchRecentPapers(previouslyFeaturedPaperUrls),
     fetchNewsItems()
   ]);
   const papers = papersResult.status === "fulfilled" ? papersResult.value : [];
@@ -582,8 +693,6 @@ const main = async () => {
 
   await writeFile(path.join(postsDir, `${slug}.html`), renderPost({ date, papers, newsItems }), "utf8");
 
-  const postsPath = path.join(dataDir, "posts.json");
-  const oldPosts = await readJson(postsPath, []);
   const posts = [post, ...oldPosts.filter((item) => item.date !== date && item.url !== post.url)].slice(0, maxStoredPosts);
 
   await writeFile(postsPath, `${JSON.stringify(posts, null, 2)}\n`, "utf8");
