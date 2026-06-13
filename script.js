@@ -68,31 +68,32 @@ if (slides.length > 1) {
 }
 
 const latestBlogCard = document.querySelector("[data-blog-latest]");
+const latestVideoCard = document.querySelector("[data-video-latest]");
 
-const renderLatestBlogPost = (post) => {
-  if (!latestBlogCard || !post) {
+const renderLatestPostCard = (card, post, options) => {
+  if (!card || !post) {
     return;
   }
 
   const kicker = document.createElement("p");
   kicker.className = "blog-kicker";
-  kicker.textContent = post.date ? `Latest digest | ${post.date}` : "Latest digest";
+  kicker.textContent = post.date ? `${options.kicker} | ${post.date}` : options.kicker;
 
   const title = document.createElement("h3");
-  title.textContent = (post.title || "Daily AI and tech digest").replace(
+  title.textContent = (post.title || options.title).replace(
     / for \d{4}-\d{2}-\d{2}$/,
     ""
   );
 
   const summary = document.createElement("p");
-  summary.textContent = post.summary || "Fresh AI and tech notes from Transformer Lab.";
+  summary.textContent = post.summary || options.summary;
 
   const link = document.createElement("a");
   link.className = "text-link";
-  link.href = post.url || "blog/";
-  link.textContent = "Read the latest post";
+  link.href = post.url || options.url;
+  link.textContent = options.linkText;
 
-  latestBlogCard.replaceChildren(kicker, title, summary, link);
+  card.replaceChildren(kicker, title, summary, link);
 };
 
 if (latestBlogCard) {
@@ -104,12 +105,51 @@ if (latestBlogCard) {
 
       return response.json();
     })
-    .then(renderLatestBlogPost)
+    .then((post) => renderLatestPostCard(latestBlogCard, post, {
+      kicker: "Latest digest",
+      title: "Daily AI and tech digest",
+      summary: "Fresh AI and tech notes from Transformer Lab.",
+      url: "blog/",
+      linkText: "Read the latest post"
+    }))
     .catch(() => {
-      renderLatestBlogPost({
+      renderLatestPostCard(latestBlogCard, {
+        title: "Daily AI and tech digest"
+      }, {
+        kicker: "Latest digest",
         title: "Daily AI and tech digest",
         summary: "The automated AI and tech digest will appear here after the next scheduled run.",
-        url: "blog/"
+        url: "blog/",
+        linkText: "View all posts"
+      });
+    });
+}
+
+if (latestVideoCard) {
+  fetch("blog/data/latest-video.json", { cache: "no-store" })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("No latest video digest found");
+      }
+
+      return response.json();
+    })
+    .then((post) => renderLatestPostCard(latestVideoCard, post, {
+      kicker: "Latest video",
+      title: "Daily AI video digest",
+      summary: "A video-style AI news briefing from Transformer Lab.",
+      url: "blog/videos/",
+      linkText: "Watch the video-style brief"
+    }))
+    .catch(() => {
+      renderLatestPostCard(latestVideoCard, {
+        title: "Daily AI video digest"
+      }, {
+        kicker: "Latest video",
+        title: "Daily AI video digest",
+        summary: "The daily AI video-style briefing will appear here after the next scheduled run.",
+        url: "blog/videos/",
+        linkText: "View video posts"
       });
     });
 }
