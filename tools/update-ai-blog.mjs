@@ -9,7 +9,7 @@ const dataDir = path.join(blogDir, "data");
 const maxNewsItems = Number.parseInt(process.env.BLOG_MAX_NEWS || "10", 10);
 const maxPapers = Number.parseInt(process.env.BLOG_MAX_PAPERS || "6", 10);
 const maxStoredPosts = Number.parseInt(process.env.BLOG_MAX_STORED_POSTS || "60", 10);
-const assetVersion = "20260613b";
+const assetVersion = "20260613c";
 
 const arxivTopics = [
   "cat:cs.AI",
