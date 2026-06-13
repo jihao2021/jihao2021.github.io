@@ -740,38 +740,59 @@ a:hover {
 }
 
 .avatar {
-  --avatar-a: #990000;
-  --avatar-b: #ffcc00;
-  --avatar-c: #2f6f7e;
-  --avatar-ink: #fff1d8;
+  --skin: #f3c7a7;
+  --skin-shadow: #dea37e;
+  --hair: #3a2419;
+  --shirt: #f7f7f5;
+  --shirt-trim: #ffcc00;
+  --eye: #2c241f;
+  --mouth: #b55a58;
+  --glasses: transparent;
+  --tilt: -2deg;
   position: relative;
   isolation: isolate;
-  width: 76px;
-  height: 76px;
+  width: 92px;
+  height: 112px;
   overflow: hidden;
-  border: 1px solid rgba(45, 18, 10, 0.12);
-  border-radius: 24px;
+  border: 0;
+  border-radius: 30px;
   background:
-    radial-gradient(circle at 74% 18%, rgba(255, 255, 255, 0.48) 0 8px, transparent 9px),
-    radial-gradient(circle at 18% 78%, rgba(255, 255, 255, 0.18), transparent 28px),
-    linear-gradient(135deg, var(--avatar-a), var(--avatar-b));
+    radial-gradient(circle at 70% 18%, rgba(255, 255, 255, 0.7) 0 8px, transparent 9px),
+    radial-gradient(circle at 26% 22%, rgba(255, 255, 255, 0.36), transparent 30px),
+    radial-gradient(ellipse at 50% 34%, var(--hair) 0 35px, transparent 36px),
+    linear-gradient(180deg, rgba(248, 244, 238, 0.96), rgba(250, 250, 248, 0.52));
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.32),
-    0 10px 24px rgba(45, 18, 10, 0.1);
+    inset 0 0 0 1px rgba(45, 18, 10, 0.1),
+    0 14px 28px rgba(45, 18, 10, 0.1);
 }
 
 .avatar::before {
   content: "";
   position: absolute;
-  z-index: 1;
-  top: 13px;
+  z-index: 2;
+  top: 9px;
   left: 50%;
-  width: 27px;
-  height: 27px;
-  transform: translateX(-50%);
-  border-radius: 50%;
-  background: linear-gradient(180deg, var(--avatar-ink), rgba(255, 255, 255, 0.86));
-  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.22);
+  width: 58px;
+  height: 68px;
+  transform: translateX(-50%) rotate(var(--tilt));
+  border-radius: 46% 46% 50% 50%;
+  background:
+    radial-gradient(circle at 39% 55%, transparent 0 8px, var(--glasses) 8.4px 10.2px, transparent 10.6px),
+    radial-gradient(circle at 62% 55%, transparent 0 8px, var(--glasses) 8.4px 10.2px, transparent 10.6px),
+    radial-gradient(ellipse at 50% 55%, var(--glasses) 0 4px, transparent 4.3px),
+    radial-gradient(circle at 39% 55%, #fff 0 4px, var(--eye) 4.2px 6px, transparent 6.2px),
+    radial-gradient(circle at 62% 55%, #fff 0 4px, var(--eye) 4.2px 6px, transparent 6.2px),
+    radial-gradient(ellipse at 51% 75%, #5c2d2e 0 5.5px, transparent 6px),
+    radial-gradient(circle at 34% 66%, rgba(255, 130, 112, 0.28) 0 5px, transparent 5.5px),
+    radial-gradient(circle at 68% 66%, rgba(255, 130, 112, 0.24) 0 5px, transparent 5.5px),
+    linear-gradient(90deg, transparent 34%, rgba(255, 255, 255, 0.42) 49%, transparent 57%),
+    linear-gradient(180deg, var(--hair) 0 13%, transparent 14%),
+    linear-gradient(180deg, var(--skin) 0%, var(--skin-shadow) 100%);
+  box-shadow:
+    -26px 25px 0 -15px var(--skin),
+    26px 25px 0 -15px var(--skin),
+    inset 0 -9px 14px rgba(121, 62, 32, 0.16),
+    0 7px 14px rgba(45, 18, 10, 0.16);
 }
 
 .avatar::after {
@@ -779,27 +800,33 @@ a:hover {
   position: absolute;
   z-index: 1;
   left: 50%;
-  bottom: 10px;
-  width: 52px;
-  height: 30px;
+  bottom: 0;
+  width: 78px;
+  height: 42px;
   transform: translateX(-50%);
-  border-radius: 26px 26px 12px 12px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), var(--avatar-c));
+  border-radius: 36px 36px 18px 18px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0 12%, transparent 13%),
+    linear-gradient(90deg, transparent 0 42%, rgba(255, 255, 255, 0.72) 43% 57%, transparent 58%),
+    repeating-linear-gradient(0deg, transparent 0 10px, rgba(255, 255, 255, 0.45) 10px 13px),
+    linear-gradient(135deg, var(--shirt), var(--shirt-trim));
+  box-shadow: inset 0 8px 14px rgba(255, 255, 255, 0.52);
 }
 
 .avatar span {
   position: absolute;
-  z-index: 2;
-  right: 7px;
-  bottom: 7px;
+  z-index: 3;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
   display: inline-grid;
-  min-width: 28px;
-  min-height: 22px;
+  min-width: 30px;
+  min-height: 24px;
   place-items: center;
-  padding: 0 0.3rem;
-  border: 1px solid rgba(45, 18, 10, 0.12);
+  padding: 0 0.32rem;
+  border: 1px solid rgba(45, 18, 10, 0.1);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.84);
+  background: rgba(255, 255, 255, 0.86);
   color: #20242d;
   font-size: 0.72rem;
   font-weight: 900;
@@ -807,94 +834,132 @@ a:hover {
 }
 
 .avatar-rp {
-  --avatar-a: #990000;
-  --avatar-b: #ffcc00;
-  --avatar-c: #2f6f7e;
-  --avatar-ink: #ffe8cc;
+  --skin: #f1c3a2;
+  --skin-shadow: #df9c76;
+  --hair: #49301f;
+  --shirt: #fbfbf8;
+  --shirt-trim: #d5a22d;
+  --eye: #3b6a2f;
+  --glasses: #b91c1c;
 }
 
 .avatar-ak {
-  --avatar-a: #0f766e;
-  --avatar-b: #f59e0b;
-  --avatar-c: #144e5a;
-  --avatar-ink: #fce7d0;
+  --skin: #e7b78f;
+  --skin-shadow: #ce8c61;
+  --hair: #241a16;
+  --shirt: #f4fbfb;
+  --shirt-trim: #0f766e;
+  --eye: #2f3d2f;
+  --glasses: #26201d;
+  --tilt: 2deg;
 }
 
 .avatar-jw {
-  --avatar-a: #2563eb;
-  --avatar-b: #fb7185;
-  --avatar-c: #1d4ed8;
-  --avatar-ink: #ffe4d6;
+  --skin: #f0c8ad;
+  --skin-shadow: #db9e7b;
+  --hair: #2c2521;
+  --shirt: #f6f8ff;
+  --shirt-trim: #4f6de5;
+  --eye: #4a352b;
 }
 
 .avatar-bk {
-  --avatar-a: #7f1d1d;
-  --avatar-b: #818cf8;
-  --avatar-c: #4338ca;
-  --avatar-ink: #f7dec6;
+  --skin: #d89b70;
+  --skin-shadow: #b77750;
+  --hair: #1c1715;
+  --shirt: #f8f8ff;
+  --shirt-trim: #8b5cf6;
+  --eye: #1f2937;
+  --tilt: -4deg;
 }
 
 .avatar-ym {
-  --avatar-a: #166534;
-  --avatar-b: #bef264;
-  --avatar-c: #15803d;
-  --avatar-ink: #ffe7c7;
+  --skin: #e7bb94;
+  --skin-shadow: #c88e65;
+  --hair: #4a2f1c;
+  --shirt: #fbfff4;
+  --shirt-trim: #65a30d;
+  --eye: #263a24;
+  --tilt: 3deg;
 }
 
 .avatar-hq {
-  --avatar-a: #6d28d9;
-  --avatar-b: #facc15;
-  --avatar-c: #7c3aed;
-  --avatar-ink: #f1d9bd;
+  --skin: #c98d64;
+  --skin-shadow: #a96f4d;
+  --hair: #171312;
+  --shirt: #faf7ff;
+  --shirt-trim: #7c3aed;
+  --eye: #2a1d18;
 }
 
 .avatar-cl {
-  --avatar-a: #be123c;
-  --avatar-b: #67e8f9;
-  --avatar-c: #0891b2;
-  --avatar-ink: #ffe5cb;
+  --skin: #f1c8aa;
+  --skin-shadow: #db9a75;
+  --hair: #1f1a18;
+  --shirt: #f5fdff;
+  --shirt-trim: #0891b2;
+  --eye: #2c241d;
+  --tilt: -1deg;
 }
 
 .avatar-se {
-  --avatar-a: #374151;
-  --avatar-b: #f97316;
-  --avatar-c: #111827;
-  --avatar-ink: #f3d7bb;
+  --skin: #ecc2a4;
+  --skin-shadow: #d0926c;
+  --hair: #8a4a24;
+  --shirt: #fbfbfb;
+  --shirt-trim: #f97316;
+  --eye: #70451d;
+  --glasses: #b91c1c;
+  --tilt: 4deg;
 }
 
 .avatar-dg {
-  --avatar-a: #0f172a;
-  --avatar-b: #5eead4;
-  --avatar-c: #0f766e;
-  --avatar-ink: #f8d8bb;
+  --skin: #f4caaa;
+  --skin-shadow: #d99671;
+  --hair: #202020;
+  --shirt: #f6fffd;
+  --shirt-trim: #0f766e;
+  --eye: #2b2b2b;
+  --glasses: #252525;
 }
 
 .avatar-bh {
-  --avatar-a: #8a1538;
-  --avatar-b: #ffb81c;
-  --avatar-c: #6b102d;
-  --avatar-ink: #ffe3c5;
+  --skin: #efc2a2;
+  --skin-shadow: #d79a73;
+  --hair: #2b211d;
+  --shirt: #fff8eb;
+  --shirt-trim: #8a1538;
+  --eye: #2e2420;
+  --tilt: -3deg;
 }
 
 .avatar-yq {
-  --avatar-a: #1d4ed8;
-  --avatar-b: #fde68a;
-  --avatar-c: #2563eb;
-  --avatar-ink: #f2d2b4;
+  --skin: #e2ae84;
+  --skin-shadow: #c5845b;
+  --hair: #161211;
+  --shirt: #f6f9ff;
+  --shirt-trim: #2563eb;
+  --eye: #2d241f;
+  --tilt: 2deg;
 }
 
 .avatar-sh {
-  --avatar-a: #047857;
-  --avatar-b: #38bdf8;
-  --avatar-c: #0369a1;
-  --avatar-ink: #f7dcc0;
+  --skin: #f0bea0;
+  --skin-shadow: #d68f69;
+  --hair: #2b2725;
+  --shirt: #f3fbff;
+  --shirt-trim: #0284c7;
+  --eye: #263238;
 }
 
 .avatar-ql {
-  --avatar-a: #9a3412;
-  --avatar-b: #7dd3fc;
-  --avatar-c: #c2410c;
-  --avatar-ink: #ffe0c0;
+  --skin: #dca075;
+  --skin-shadow: #bd7a52;
+  --hair: #211817;
+  --shirt: #fff8f2;
+  --shirt-trim: #c2410c;
+  --eye: #231b17;
+  --tilt: -2deg;
 }
 
 .person-meta {
