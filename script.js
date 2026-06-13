@@ -68,7 +68,6 @@ if (slides.length > 1) {
 }
 
 const latestBlogCard = document.querySelector("[data-blog-latest]");
-const latestVideoCard = document.querySelector("[data-video-latest]");
 
 const renderLatestPostCard = (card, post, options) => {
   if (!card || !post) {
@@ -121,35 +120,6 @@ if (latestBlogCard) {
         summary: "The automated AI and tech digest will appear here after the next scheduled run.",
         url: "blog/",
         linkText: "View all posts"
-      });
-    });
-}
-
-if (latestVideoCard) {
-  fetch("blog/data/latest-video.json", { cache: "no-store" })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("No latest video digest found");
-      }
-
-      return response.json();
-    })
-    .then((post) => renderLatestPostCard(latestVideoCard, post, {
-      kicker: "Latest video",
-      title: "Daily AI video digest",
-      summary: "A video-style AI news briefing from Transformer Lab.",
-      url: "blog/videos/",
-      linkText: "Watch the video-style brief"
-    }))
-    .catch(() => {
-      renderLatestPostCard(latestVideoCard, {
-        title: "Daily AI video digest"
-      }, {
-        kicker: "Latest video",
-        title: "Daily AI video digest",
-        summary: "The daily AI video-style briefing will appear here after the next scheduled run.",
-        url: "blog/videos/",
-        linkText: "View video posts"
       });
     });
 }

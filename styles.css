@@ -597,11 +597,6 @@ a:hover {
   gap: 1rem;
 }
 
-.blog-index-split {
-  display: grid;
-  gap: 2rem;
-}
-
 .blog-index-section > h2 {
   margin: 0 0 1rem;
   font-family: Georgia, "Times New Roman", serif;
@@ -715,173 +710,6 @@ a:hover {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--white);
-}
-
-.video-post {
-  max-width: 980px;
-}
-
-.video-reel {
-  display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(260px, 0.75fr);
-  gap: 1rem;
-  align-items: stretch;
-  margin: 1.8rem 0 2.4rem;
-}
-
-.video-screen,
-.video-slide-media {
-  position: relative;
-  overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: #111827;
-}
-
-.video-screen {
-  min-height: 340px;
-  box-shadow: var(--shadow);
-}
-
-.video-screen img,
-.video-slide-media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.video-screen img {
-  position: absolute;
-  inset: 0;
-}
-
-.video-screen::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  background: linear-gradient(180deg, rgba(17, 24, 39, 0.16), rgba(17, 24, 39, 0.82));
-}
-
-.video-screen-placeholder {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  color: rgba(255, 255, 255, 0.72);
-  font-size: clamp(4rem, 14vw, 8rem);
-  font-weight: 900;
-}
-
-.video-screen-overlay {
-  position: absolute;
-  inset: auto 1.2rem 1.2rem;
-  z-index: 2;
-  color: var(--white);
-}
-
-.video-screen-overlay p {
-  margin: 0 0 0.4rem;
-  color: var(--usc-gold);
-  font-size: 0.78rem;
-  font-weight: 900;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.video-screen-overlay h2 {
-  margin: 0;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(2rem, 4vw, 3.4rem);
-  line-height: 0.95;
-  letter-spacing: 0;
-}
-
-.video-screen-overlay span {
-  display: inline-flex;
-  margin-top: 0.75rem;
-  padding: 0.35rem 0.55rem;
-  border: 1px solid rgba(255, 255, 255, 0.32);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.12);
-  font-size: 0.86rem;
-  font-weight: 800;
-}
-
-.video-reel-copy {
-  padding: 1.25rem;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--white);
-}
-
-.video-reel-copy h2,
-.video-script h2 {
-  margin: 0 0 0.8rem;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(1.45rem, 2.6vw, 2.1rem);
-  line-height: 1.08;
-  letter-spacing: 0;
-}
-
-.video-slide-list {
-  display: grid;
-  gap: 1rem;
-}
-
-.video-slide {
-  display: grid;
-  grid-template-columns: minmax(180px, 0.36fr) minmax(0, 1fr);
-  gap: 1.25rem;
-  overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--white);
-}
-
-.video-slide-media {
-  min-height: 210px;
-  border-width: 0 1px 0 0;
-  border-radius: 0;
-}
-
-.video-slide-media-empty {
-  display: grid;
-  place-items: center;
-  background:
-    radial-gradient(circle at 72% 18%, rgba(255, 204, 0, 0.28), transparent 9rem),
-    linear-gradient(135deg, #390000, #990000);
-}
-
-.video-slide-media-empty span {
-  color: var(--white);
-  font-size: 2.5rem;
-  font-weight: 900;
-}
-
-.video-slide-body {
-  padding: 1.25rem 1.25rem 1.25rem 0;
-}
-
-.video-slide-body h2 {
-  margin: 0.35rem 0 0.6rem;
-  font-size: 1.2rem;
-  line-height: 1.22;
-}
-
-.video-script {
-  margin: 2.2rem 0;
-  padding: 1.35rem;
-  border: 1px solid rgba(153, 0, 0, 0.18);
-  border-radius: var(--radius);
-  background: var(--paper);
-}
-
-.video-script ol {
-  display: grid;
-  gap: 0.8rem;
-  margin: 1rem 0;
-  padding-left: 1.25rem;
 }
 
 .research-intro {
@@ -1166,25 +994,17 @@ a:hover {
   }
 
   .paper-list li.digest-card,
-  .video-reel,
-  .video-slide,
   .digest-visual-strip {
     grid-template-columns: 1fr;
   }
 
-  .digest-card-media,
-  .video-slide-media {
+  .digest-card-media {
     border-right: 0;
     border-bottom: 1px solid var(--line);
   }
 
-  .digest-card-body,
-  .video-slide-body {
+  .digest-card-body {
     padding: 1.25rem;
-  }
-
-  .video-screen {
-    min-height: 280px;
   }
 
   .site-footer {

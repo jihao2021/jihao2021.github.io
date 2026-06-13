@@ -5,13 +5,11 @@ import path from "node:path";
 const rootDir = process.cwd();
 const blogDir = path.join(rootDir, "blog");
 const postsDir = path.join(blogDir, "posts");
-const videosDir = path.join(blogDir, "videos");
 const dataDir = path.join(blogDir, "data");
 const maxNewsItems = Number.parseInt(process.env.BLOG_MAX_NEWS || "10", 10);
 const maxPapers = Number.parseInt(process.env.BLOG_MAX_PAPERS || "6", 10);
 const maxStoredPosts = Number.parseInt(process.env.BLOG_MAX_STORED_POSTS || "60", 10);
-const maxVideoItems = Number.parseInt(process.env.BLOG_MAX_VIDEO_ITEMS || "6", 10);
-const assetVersion = "20260612h";
+const assetVersion = "20260613a";
 
 const arxivTopics = [
   "cat:cs.AI",
@@ -262,37 +260,6 @@ const abstractPreview = (abstract) => {
 
   return `${words.slice(0, 34).join(" ")}...`;
 };
-
-const titleToNarration = (title) => {
-  const cleaned = normalizeWhitespace(title)
-    .replace(/[“”]/g, '"')
-    .replace(/[‘’]/g, "'")
-    .replace(/\s+/g, " ");
-  if (cleaned.length <= 124) {
-    return cleaned;
-  }
-
-  return `${cleaned.slice(0, 121).replace(/\s+\S*$/, "")}...`;
-};
-
-const renderVideoSlideMedia = (item) => {
-  if (item.image) {
-    return `<a class="video-slide-media" href="${escapeHtml(item.url)}" aria-label="${escapeHtml(item.title)}">
-              <img src="${escapeHtml(item.image)}" alt="" loading="lazy">
-            </a>`;
-  }
-
-  return `<a class="video-slide-media video-slide-media-empty" href="${escapeHtml(item.url)}" aria-label="${escapeHtml(item.title)}">
-              <span>${escapeHtml((item.track || "AI").slice(0, 2).toUpperCase())}</span>
-            </a>`;
-};
-
-const buildVideoItems = (newsItems) =>
-  newsItems.slice(0, maxVideoItems).map((item, index) => ({
-    ...item,
-    scene: String(index + 1).padStart(2, "0"),
-    narration: titleToNarration(item.title)
-  }));
 
 const fetchRecentPapers = async () => {
   const params = new URLSearchParams({
@@ -557,91 +524,9 @@ ${renderPaperItems(papers, date)}
 
 ${renderFooter("../../")}`;
 
-const renderVideoPost = ({ date, videoItems, writtenPostUrl }) => {
-  const featured = videoItems.find((item) => item.image) || videoItems[0];
-  const featuredMedia = featured?.image
-    ? `<img src="${escapeHtml(featured.image)}" alt="" loading="eager">`
-    : `<div class="video-screen-placeholder">AI</div>`;
-  const slideCards = videoItems.map((item) => `          <article class="video-slide">
-            ${renderVideoSlideMedia(item)}
-            <div class="video-slide-body">
-              <p class="pub-year">Scene ${item.scene} | ${escapeHtml(item.source)}</p>
-              <h2><a href="${escapeHtml(item.url)}">${escapeHtml(item.title)}</a></h2>
-              <p><strong>Track:</strong> ${escapeHtml(item.track)}</p>
-              <p>${escapeHtml(item.narration)}</p>
-            </div>
-          </article>`).join("\n");
-  const scriptLines = videoItems.map((item, index) => `          <li>
-            <strong>Scene ${item.scene}:</strong>
-            ${index === 0 ? "Lead with" : "Then cover"} ${escapeHtml(item.narration)}
-            <a href="${escapeHtml(item.url)}">Source</a>
-          </li>`).join("\n");
-
-  return `${renderHeader(`Daily AI Video Digest | ${date}`, "../../", "../../")}
-
-  <main id="main">
-    <article class="section blog-post video-post">
-      <p class="eyebrow">Daily AI Video Digest</p>
-      <h1>AI video digest for ${escapeHtml(date)}</h1>
-      <p class="blog-meta">A video-style summary generated from the same source-linked AI and technology news scan.</p>
-
-      <section class="video-reel" aria-label="AI video digest storyboard">
-        <div class="video-screen">
-          ${featuredMedia}
-          <div class="video-screen-overlay">
-            <p>Transformer Lab</p>
-            <h2>Today in AI</h2>
-            <span>${videoItems.length} headline scenes</span>
-          </div>
-        </div>
-        <div class="video-reel-copy">
-          <h2>One-minute briefing script</h2>
-          <p>
-            This post is designed as a ready-to-record video brief: headline images,
-            concise scene cards, and a narration script for the latest AI and tech news.
-          </p>
-          <a class="text-link" href="${escapeHtml(writtenPostUrl.replace(/^blog\//, "../"))}">Read the full written digest</a>
-        </div>
-      </section>
-
-      <section class="digest-section" aria-labelledby="video-scenes-title">
-        <h2 id="video-scenes-title">Video scenes</h2>
-        <p>Each scene links back to its original source article.</p>
-        <div class="video-slide-list">
-${slideCards}
-        </div>
-      </section>
-
-      <section class="video-script" aria-labelledby="video-script-title">
-        <h2 id="video-script-title">Narration script</h2>
-        <p>
-          Opening: Here is today's Transformer Lab AI video digest, built from source-linked
-          AI and technology headlines.
-        </p>
-        <ol>
-${scriptLines}
-        </ol>
-        <p>
-          Closing: That is today's AI video digest. Follow the written post for links,
-          papers, and deeper reading.
-        </p>
-      </section>
-
-      <p><a class="text-link" href="./">Back to video digests</a></p>
-    </article>
-  </main>
-
-${renderFooter("../../")}`;
-};
-
-const renderIndex = (posts, videoPosts = []) => {
+const renderIndex = (posts) => {
   const postCards = posts.map((post) => `        <article class="blog-card">
           <p class="blog-kicker">${escapeHtml(post.date)}</p>
-          <h2><a href="${escapeHtml(post.url.replace(/^blog\//, ""))}">${escapeHtml(post.title)}</a></h2>
-          <p>${escapeHtml(post.summary)}</p>
-        </article>`).join("\n");
-  const videoCards = videoPosts.map((post) => `        <article class="blog-card">
-          <p class="blog-kicker">Video | ${escapeHtml(post.date)}</p>
           <h2><a href="${escapeHtml(post.url.replace(/^blog\//, ""))}">${escapeHtml(post.title)}</a></h2>
           <p>${escapeHtml(post.summary)}</p>
         </article>`).join("\n");
@@ -657,67 +542,24 @@ const renderIndex = (posts, videoPosts = []) => {
       <div class="research-intro">
         <p>
           A daily, source-linked scan of AI news, technology news, product updates,
-          recent research papers, and video-style briefing posts. The digest is
+          and recent research papers. The digest is
           generated by the Transformer Lab agent for students, teachers, and collaborators.
         </p>
       </div>
-      <div class="blog-index-split">
-        <section class="blog-index-section" aria-labelledby="video-digest-title">
-          <h2 id="video-digest-title">Video digests</h2>
-          <div class="blog-index-list">
-${videoCards || `        <article class="blog-card">
-          <p class="blog-kicker">Video</p>
-          <h2>Video digest coming soon</h2>
-          <p>The next scheduled run will publish a video-style AI news briefing.</p>
-        </article>`}
-          </div>
-        </section>
-        <section class="blog-index-section" aria-labelledby="written-digest-title">
-          <h2 id="written-digest-title">Written digests</h2>
-          <div class="blog-index-list">
+      <section class="blog-index-section" aria-labelledby="written-digest-title">
+        <h2 id="written-digest-title">Written digests</h2>
+        <div class="blog-index-list">
 ${postCards}
-          </div>
-        </section>
-      </div>
+        </div>
+      </section>
     </section>
   </main>
 
 ${renderFooter("../")}`;
 };
 
-const renderVideoIndex = (videoPosts) => {
-  const videoCards = videoPosts.map((post) => `        <article class="blog-card">
-          <p class="blog-kicker">${escapeHtml(post.date)}</p>
-          <h2><a href="${escapeHtml(post.url.replace(/^blog\/videos\//, ""))}">${escapeHtml(post.title)}</a></h2>
-          <p>${escapeHtml(post.summary)}</p>
-        </article>`).join("\n");
-
-  return `${renderHeader("AI Video Digest | Transformer Lab", "../../", "../../")}
-
-  <main id="main">
-    <section class="section section-band blog-page">
-      <div class="section-heading">
-        <p class="eyebrow">Transformer Lab</p>
-        <h1>Daily AI video digest</h1>
-      </div>
-      <div class="research-intro">
-        <p>
-          Short video-style AI news posts with source images, headline scenes,
-          and a ready-to-record narration script.
-        </p>
-      </div>
-      <div class="blog-index-list">
-${videoCards}
-      </div>
-    </section>
-  </main>
-
-${renderFooter("../../")}`;
-};
-
 const main = async () => {
   await mkdir(postsDir, { recursive: true });
-  await mkdir(videosDir, { recursive: true });
   await mkdir(dataDir, { recursive: true });
 
   const date = process.env.BLOG_DATE || formatLosAngelesDate();
@@ -737,36 +579,18 @@ const main = async () => {
   const title = `AI and tech digest for ${date}`;
   const summary = `A source-linked digest of ${newsItems.length} AI/tech headlines and ${papers.length} recent research papers.`;
   const post = { date, title, summary, url: postUrl };
-  const videoSlug = `${date}-ai-video-digest`;
-  const videoUrl = `blog/videos/${videoSlug}.html`;
-  const videoItems = buildVideoItems(newsItems);
-  const videoTitle = `AI video digest for ${date}`;
-  const videoSummary = `A video-style briefing with ${videoItems.length} AI and tech headline scenes.`;
-  const videoPost = { date, title: videoTitle, summary: videoSummary, url: videoUrl };
 
   await writeFile(path.join(postsDir, `${slug}.html`), renderPost({ date, papers, newsItems }), "utf8");
-  await writeFile(
-    path.join(videosDir, `${videoSlug}.html`),
-    renderVideoPost({ date, videoItems, writtenPostUrl: postUrl }),
-    "utf8"
-  );
 
   const postsPath = path.join(dataDir, "posts.json");
-  const videoPostsPath = path.join(dataDir, "video-posts.json");
   const oldPosts = await readJson(postsPath, []);
-  const oldVideoPosts = await readJson(videoPostsPath, []);
   const posts = [post, ...oldPosts.filter((item) => item.date !== date && item.url !== post.url)].slice(0, maxStoredPosts);
-  const videoPosts = [videoPost, ...oldVideoPosts.filter((item) => item.date !== date && item.url !== videoPost.url)].slice(0, maxStoredPosts);
 
   await writeFile(postsPath, `${JSON.stringify(posts, null, 2)}\n`, "utf8");
-  await writeFile(videoPostsPath, `${JSON.stringify(videoPosts, null, 2)}\n`, "utf8");
   await writeFile(path.join(dataDir, "latest.json"), `${JSON.stringify(post, null, 2)}\n`, "utf8");
-  await writeFile(path.join(dataDir, "latest-video.json"), `${JSON.stringify(videoPost, null, 2)}\n`, "utf8");
-  await writeFile(path.join(blogDir, "index.html"), renderIndex(posts, videoPosts), "utf8");
-  await writeFile(path.join(videosDir, "index.html"), renderVideoIndex(videoPosts), "utf8");
+  await writeFile(path.join(blogDir, "index.html"), renderIndex(posts), "utf8");
 
   console.log(`Published ${postUrl}`);
-  console.log(`Published ${videoUrl}`);
 };
 
 main().catch((error) => {
