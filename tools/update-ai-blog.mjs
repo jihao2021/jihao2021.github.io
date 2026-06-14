@@ -7,10 +7,11 @@ const blogDir = path.join(rootDir, "blog");
 const postsDir = path.join(blogDir, "posts");
 const dataDir = path.join(blogDir, "data");
 const maxNewsItems = Number.parseInt(process.env.BLOG_MAX_NEWS || "10", 10);
+const maxFinanceItems = Number.parseInt(process.env.BLOG_MAX_FINANCE || "6", 10);
 const maxPapers = Number.parseInt(process.env.BLOG_MAX_PAPERS || "6", 10);
 const arxivPoolSize = Number.parseInt(process.env.BLOG_ARXIV_POOL || String(Math.max(48, maxPapers * 8)), 10);
 const maxStoredPosts = Number.parseInt(process.env.BLOG_MAX_STORED_POSTS || "60", 10);
-const assetVersion = "20260613c";
+const assetVersion = "20260613d";
 
 const arxivTopics = [
   "cat:cs.AI",
@@ -58,6 +59,29 @@ const newsSources = [
     name: "Ars Technica",
     url: "https://feeds.arstechnica.com/arstechnica/index",
     track: "Tech"
+  }
+];
+
+const financeSources = [
+  {
+    name: "Yahoo Finance Markets",
+    url: "https://feeds.finance.yahoo.com/rss/2.0/headline?s=%5EGSPC,%5EDJI,%5EIXIC&region=US&lang=en-US",
+    track: "Markets"
+  },
+  {
+    name: "CNBC Markets",
+    url: "https://www.cnbc.com/id/100003114/device/rss/rss.html",
+    track: "Stocks"
+  },
+  {
+    name: "MarketWatch Top Stories",
+    url: "https://feeds.content.dowjones.io/public/rss/mw_topstories",
+    track: "Finance"
+  },
+  {
+    name: "MarketWatch MarketPulse",
+    url: "https://feeds.content.dowjones.io/public/rss/mw_marketpulse",
+    track: "MarketPulse"
   }
 ];
 
@@ -112,7 +136,7 @@ const formatSourceDate = (value, fallback) => {
     return String(value).slice(0, 16);
   }
 
-  return date.toISOString().slice(0, 10);
+  return formatLosAngelesDate(date);
 };
 
 const getTag = (xml, tagName) => {
@@ -435,8 +459,8 @@ const enrichNewsItemImages = async (items) => {
   );
 };
 
-const fetchNewsItems = async () => {
-  const settled = await Promise.allSettled(newsSources.map(fetchFeedItems));
+const fetchHeadlineItems = async (sources, maxItems) => {
+  const settled = await Promise.allSettled(sources.map(fetchFeedItems));
   const items = settled.flatMap((result) => result.status === "fulfilled" ? result.value : []);
   const seen = new Set();
   const unique = items.filter((item) => {
@@ -451,10 +475,14 @@ const fetchNewsItems = async () => {
 
   const selected = unique
     .sort((a, b) => new Date(b.published || 0) - new Date(a.published || 0))
-    .slice(0, maxNewsItems);
+    .slice(0, maxItems);
 
   return enrichNewsItemImages(selected);
 };
+
+const fetchNewsItems = async () => fetchHeadlineItems(newsSources, maxNewsItems);
+
+const fetchFinanceItems = async () => fetchHeadlineItems(financeSources, maxFinanceItems);
 
 const readJson = async (filePath, fallback) => {
   if (!existsSync(filePath)) {
@@ -484,7 +512,7 @@ const renderHeader = (title, stylesheetPrefix, scriptPrefix) => `<!doctype html>
         <span class="brand-mark">TL</span>
         <span>
           <strong>Transformer Lab</strong>
-          <small>Daily AI and tech digest</small>
+          <small>Daily AI, tech, and finance digest</small>
         </span>
       </a>
       <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-menu">
@@ -554,6 +582,39 @@ const renderNewsItems = (newsItems, date) => {
   }).join("\n");
 };
 
+const renderFinanceItems = (financeItems, date) => {
+  if (!financeItems.length) {
+    return `        <li>
+          <p class="pub-year">Markets</p>
+          <h2>No finance or stock-market feed items were available for ${escapeHtml(date)}</h2>
+          <p>The next scheduled run will try the market news feeds again.</p>
+        </li>`;
+  }
+
+  return financeItems.map((item, index) => {
+    if (!item.image) {
+      return `        <li>
+          <p class="pub-year">Market ${String(index + 1).padStart(2, "0")} | ${escapeHtml(item.published || date)}</p>
+          <h2><a href="${escapeHtml(item.url)}">${escapeHtml(item.title)}</a></h2>
+          <p><strong>Source:</strong> ${escapeHtml(item.source)}</p>
+          <p><strong>Track:</strong> ${escapeHtml(item.track)}</p>
+        </li>`;
+    }
+
+    return `        <li class="digest-card">
+          <a class="digest-card-media" href="${escapeHtml(item.url)}" aria-label="${escapeHtml(item.title)}">
+            <img src="${escapeHtml(item.image)}" alt="" loading="lazy">
+          </a>
+          <div class="digest-card-body">
+            <p class="pub-year">Market ${String(index + 1).padStart(2, "0")} | ${escapeHtml(item.published || date)}</p>
+            <h2><a href="${escapeHtml(item.url)}">${escapeHtml(item.title)}</a></h2>
+            <p><strong>Source:</strong> ${escapeHtml(item.source)}</p>
+            <p><strong>Track:</strong> ${escapeHtml(item.track)}</p>
+          </div>
+        </li>`;
+  }).join("\n");
+};
+
 const renderPaperItems = (papers, date) => {
   if (!papers.length) {
     return `        <li>
@@ -595,26 +656,35 @@ ${images.slice(0, 3).map((image, index) => `        <img src="${escapeHtml(image
       </div>`;
 };
 
-const renderPost = ({ date, papers, newsItems }) => `${renderHeader(`Daily AI and Tech Digest | ${date}`, "../../", "../../")}
+const renderPost = ({ date, papers, newsItems, financeItems }) => `${renderHeader(`Daily AI, Tech, and Finance Digest | ${date}`, "../../", "../../")}
 
   <main id="main">
     <article class="section blog-post">
-      <p class="eyebrow">Daily AI and Tech Digest</p>
-      <h1>AI and tech digest for ${escapeHtml(date)}</h1>
-      <p class="blog-meta">Published by the Transformer Lab agent. Sources: AI/tech RSS feeds and arXiv recent submissions.</p>
+      <p class="eyebrow">Daily AI, Tech, and Finance Digest</p>
+      <h1>AI, tech, and finance digest for ${escapeHtml(date)}</h1>
+      <p class="blog-meta">Published by the Transformer Lab agent. Sources: AI/tech RSS feeds, finance RSS feeds, and arXiv recent submissions.</p>
       <p>
         Today's digest combines source-linked AI news, broader technology headlines,
-        and recent research papers. It is meant as a fast reading map for students,
-        teachers, and collaborators who want to understand what is moving from
-        labs into real products and systems.
+        finance and stock-market updates, and recent research papers. It is meant
+        as a fast reading map for students, teachers, and collaborators who want
+        to understand what is moving from labs into real products, markets, and
+        systems.
       </p>
-${renderVisualStrip(newsItems)}
+${renderVisualStrip([...newsItems, ...financeItems])}
 
       <section class="digest-section" aria-labelledby="news-title">
         <h2 id="news-title">Latest AI and tech news</h2>
         <p>Headline-only links to original sources, grouped for quick scanning.</p>
         <ul class="paper-list">
 ${renderNewsItems(newsItems, date)}
+        </ul>
+      </section>
+
+      <section class="digest-section" aria-labelledby="finance-title">
+        <h2 id="finance-title">Finance and stock market news</h2>
+        <p>Source-linked market and finance headlines for context only, not investment advice.</p>
+        <ul class="paper-list">
+${renderFinanceItems(financeItems, date)}
         </ul>
       </section>
 
@@ -639,18 +709,18 @@ const renderIndex = (posts) => {
           <p>${escapeHtml(post.summary)}</p>
         </article>`).join("\n");
 
-  return `${renderHeader("AI and Tech Blog | Transformer Lab", "../", "../")}
+  return `${renderHeader("AI, Tech, and Finance Blog | Transformer Lab", "../", "../")}
 
   <main id="main">
     <section class="section section-band blog-page">
       <div class="section-heading">
         <p class="eyebrow">Transformer Lab</p>
-        <h1>Daily AI and tech digest</h1>
+        <h1>Daily AI, tech, and finance digest</h1>
       </div>
       <div class="research-intro">
         <p>
-          A daily, source-linked scan of AI news, technology news, product updates,
-          and recent research papers. The digest is
+          A daily, source-linked scan of AI news, technology news, finance and
+          stock-market headlines, product updates, and recent research papers. The digest is
           generated by the Transformer Lab agent for students, teachers, and collaborators.
         </p>
       </div>
@@ -674,24 +744,26 @@ const main = async () => {
   const postsPath = path.join(dataDir, "posts.json");
   const oldPosts = await readJson(postsPath, []);
   const previouslyFeaturedPaperUrls = await collectPreviouslyFeaturedPaperUrls(oldPosts);
-  const [papersResult, newsResult] = await Promise.allSettled([
+  const [papersResult, newsResult, financeResult] = await Promise.allSettled([
     fetchRecentPapers(previouslyFeaturedPaperUrls),
-    fetchNewsItems()
+    fetchNewsItems(),
+    fetchFinanceItems()
   ]);
   const papers = papersResult.status === "fulfilled" ? papersResult.value : [];
   const newsItems = newsResult.status === "fulfilled" ? newsResult.value : [];
+  const financeItems = financeResult.status === "fulfilled" ? financeResult.value : [];
 
-  if (!papers.length && !newsItems.length) {
-    throw new Error("No news or research items were returned");
+  if (!papers.length && !newsItems.length && !financeItems.length) {
+    throw new Error("No news, finance, or research items were returned");
   }
 
   const slug = `${date}-ai-tech-digest`;
   const postUrl = `blog/posts/${slug}.html`;
-  const title = `AI and tech digest for ${date}`;
-  const summary = `A source-linked digest of ${newsItems.length} AI/tech headlines and ${papers.length} recent research papers.`;
+  const title = `AI, tech, and finance digest for ${date}`;
+  const summary = `A source-linked digest of ${newsItems.length} AI/tech headlines, ${financeItems.length} finance/market headlines, and ${papers.length} recent research papers.`;
   const post = { date, title, summary, url: postUrl };
 
-  await writeFile(path.join(postsDir, `${slug}.html`), renderPost({ date, papers, newsItems }), "utf8");
+  await writeFile(path.join(postsDir, `${slug}.html`), renderPost({ date, papers, newsItems, financeItems }), "utf8");
 
   const posts = [post, ...oldPosts.filter((item) => item.date !== date && item.url !== post.url)].slice(0, maxStoredPosts);
 
