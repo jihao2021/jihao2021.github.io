@@ -571,6 +571,34 @@ a:hover {
   min-height: 230px;
 }
 
+.finance-preview-banner {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1.25rem;
+  align-items: center;
+  padding: 1.35rem 1.5rem;
+  background: #f3faf6;
+  border: 1px solid rgba(18, 116, 73, 0.24);
+  border-left: 0.42rem solid #16764d;
+  border-radius: var(--radius);
+}
+
+.finance-preview-banner h2,
+.finance-preview-banner h3 {
+  margin: 0.45rem 0 0.45rem;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.35rem, 2.2vw, 1.9rem);
+  line-height: 1.15;
+  letter-spacing: 0;
+}
+
+.finance-preview-banner p:not(.blog-kicker) {
+  max-width: 760px;
+  margin: 0;
+  color: #385348;
+}
+
 .blog-meta {
   margin-top: 0.8rem;
   font-size: 0.92rem;
@@ -683,6 +711,63 @@ a:hover {
 
 .digest-section {
   margin-top: 2.2rem;
+}
+
+.finance-digest-banner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.34fr);
+  gap: 1.25rem;
+  align-items: center;
+  margin: 2.5rem 0 0.75rem;
+  padding: 1.45rem 1.6rem;
+  background: #f3faf6;
+  border: 1px solid rgba(18, 116, 73, 0.24);
+  border-left: 0.42rem solid #16764d;
+  border-radius: var(--radius);
+}
+
+.finance-digest-banner h2 {
+  margin: 0.45rem 0 0.5rem;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.45rem, 2.6vw, 2.1rem);
+  line-height: 1.08;
+  letter-spacing: 0;
+}
+
+.finance-digest-banner p:not(.blog-kicker) {
+  max-width: 660px;
+  margin: 0;
+  color: #385348;
+}
+
+.finance-banner-stats {
+  display: grid;
+  gap: 0.75rem;
+  align-content: center;
+  padding-left: 1.2rem;
+  border-left: 1px solid rgba(18, 116, 73, 0.22);
+}
+
+.finance-banner-stats strong {
+  display: block;
+  color: #14583c;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.9rem;
+  line-height: 1;
+}
+
+.finance-banner-stats span {
+  display: block;
+  color: #385348;
+  font-size: 0.9rem;
+}
+
+.finance-digest-section {
+  margin-top: 0;
+}
+
+.finance-digest-section .paper-list {
+  margin-top: 1rem;
 }
 
 .digest-section > h2 {
@@ -1096,6 +1181,18 @@ a:hover {
     padding: 1.5rem;
   }
 
+  .finance-preview-banner,
+  .finance-digest-banner {
+    grid-template-columns: 1fr;
+  }
+
+  .finance-banner-stats {
+    padding-left: 0;
+    border-left: 0;
+    border-top: 1px solid rgba(18, 116, 73, 0.22);
+    padding-top: 1rem;
+  }
+
   .paper-list li.digest-card,
   .digest-visual-strip {
     grid-template-columns: 1fr;
@@ -1165,5 +1262,10 @@ a:hover {
   .theme-card,
   .project-list article {
     min-height: 0;
+  }
+
+  .finance-preview-banner,
+  .finance-digest-banner {
+    padding: 1.15rem;
   }
 }

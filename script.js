@@ -68,6 +68,7 @@ if (slides.length > 1) {
 }
 
 const latestBlogCard = document.querySelector("[data-blog-latest]");
+const latestFinanceBanner = document.querySelector("[data-finance-latest]");
 
 const renderLatestPostCard = (card, post, options) => {
   if (!card || !post) {
@@ -107,7 +108,7 @@ if (latestBlogCard) {
     .then((post) => renderLatestPostCard(latestBlogCard, post, {
       kicker: "Latest digest",
       title: "Daily AI and tech digest",
-      summary: "Fresh AI and tech notes from Transformer Lab.",
+      summary: "Fresh AI, tech, and research notes with a separate finance banner.",
       url: "blog/",
       linkText: "Read the latest post"
     }))
@@ -117,9 +118,27 @@ if (latestBlogCard) {
       }, {
         kicker: "Latest digest",
         title: "Daily AI and tech digest",
-        summary: "The automated AI and tech digest will appear here after the next scheduled run.",
+        summary: "The automated AI and tech digest will appear here with a separate finance banner after the next scheduled run.",
         url: "blog/",
         linkText: "View all posts"
       });
     });
+}
+
+if (latestFinanceBanner) {
+  fetch("blog/data/latest.json", { cache: "no-store" })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("No latest blog post found");
+      }
+
+      return response.json();
+    })
+    .then((post) => {
+      const link = latestFinanceBanner.querySelector("a");
+      if (link && post.url) {
+        link.href = `${post.url}#finance-title`;
+      }
+    })
+    .catch(() => {});
 }

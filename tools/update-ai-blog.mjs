@@ -11,7 +11,7 @@ const maxFinanceItems = Number.parseInt(process.env.BLOG_MAX_FINANCE || "6", 10)
 const maxPapers = Number.parseInt(process.env.BLOG_MAX_PAPERS || "6", 10);
 const arxivPoolSize = Number.parseInt(process.env.BLOG_ARXIV_POOL || String(Math.max(48, maxPapers * 8)), 10);
 const maxStoredPosts = Number.parseInt(process.env.BLOG_MAX_STORED_POSTS || "60", 10);
-const assetVersion = "20260613d";
+const assetVersion = "20260613e";
 
 const arxivTopics = [
   "cat:cs.AI",
@@ -512,7 +512,7 @@ const renderHeader = (title, stylesheetPrefix, scriptPrefix) => `<!doctype html>
         <span class="brand-mark">TL</span>
         <span>
           <strong>Transformer Lab</strong>
-          <small>Daily AI, tech, and finance digest</small>
+          <small>AI digest + finance banner</small>
         </span>
       </a>
       <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-menu">
@@ -656,21 +656,43 @@ ${images.slice(0, 3).map((image, index) => `        <img src="${escapeHtml(image
       </div>`;
 };
 
-const renderPost = ({ date, papers, newsItems, financeItems }) => `${renderHeader(`Daily AI, Tech, and Finance Digest | ${date}`, "../../", "../../")}
+const renderFinanceBanner = (financeItems, date) => {
+  const sourceCount = new Set(financeItems.map((item) => item.source).filter(Boolean)).size;
+  const sourceLabel = sourceCount === 1 ? "finance source" : "finance sources";
+  return `      <aside class="finance-digest-banner" aria-labelledby="finance-title">
+        <div>
+          <p class="blog-kicker">Finance/stocks | ${escapeHtml(date)}</p>
+          <h2 id="finance-title">Finance and stock market news</h2>
+          <p>Separate market headlines from finance sources, provided for context only, not investment advice.</p>
+        </div>
+        <div class="finance-banner-stats" aria-label="Finance digest summary">
+          <div>
+            <strong>${escapeHtml(financeItems.length || "0")}</strong>
+            <span>market headlines</span>
+          </div>
+          <div>
+            <strong>${escapeHtml(sourceCount || "0")}</strong>
+            <span>${escapeHtml(sourceLabel)}</span>
+          </div>
+          <a class="text-link" href="#finance-list">Read finance items</a>
+        </div>
+      </aside>`;
+};
+
+const renderPost = ({ date, papers, newsItems, financeItems }) => `${renderHeader(`Daily AI and Tech Digest | ${date}`, "../../", "../../")}
 
   <main id="main">
     <article class="section blog-post">
-      <p class="eyebrow">Daily AI, Tech, and Finance Digest</p>
-      <h1>AI, tech, and finance digest for ${escapeHtml(date)}</h1>
+      <p class="eyebrow">Daily AI and Tech Digest</p>
+      <h1>AI and tech digest for ${escapeHtml(date)}</h1>
       <p class="blog-meta">Published by the Transformer Lab agent. Sources: AI/tech RSS feeds, finance RSS feeds, and arXiv recent submissions.</p>
       <p>
         Today's digest combines source-linked AI news, broader technology headlines,
-        finance and stock-market updates, and recent research papers. It is meant
-        as a fast reading map for students, teachers, and collaborators who want
-        to understand what is moving from labs into real products, markets, and
-        systems.
+        and recent research papers. The finance/stocks banner below separates
+        market headlines from the AI and research sections, so students, teachers,
+        and collaborators can scan each lane clearly.
       </p>
-${renderVisualStrip([...newsItems, ...financeItems])}
+${renderVisualStrip(newsItems)}
 
       <section class="digest-section" aria-labelledby="news-title">
         <h2 id="news-title">Latest AI and tech news</h2>
@@ -680,10 +702,10 @@ ${renderNewsItems(newsItems, date)}
         </ul>
       </section>
 
-      <section class="digest-section" aria-labelledby="finance-title">
-        <h2 id="finance-title">Finance and stock market news</h2>
-        <p>Source-linked market and finance headlines for context only, not investment advice.</p>
-        <ul class="paper-list">
+${renderFinanceBanner(financeItems, date)}
+
+      <section class="digest-section finance-digest-section" aria-label="Finance and stock market headline list">
+        <ul class="paper-list" id="finance-list">
 ${renderFinanceItems(financeItems, date)}
         </ul>
       </section>
@@ -709,21 +731,30 @@ const renderIndex = (posts) => {
           <p>${escapeHtml(post.summary)}</p>
         </article>`).join("\n");
 
-  return `${renderHeader("AI, Tech, and Finance Blog | Transformer Lab", "../", "../")}
+  return `${renderHeader("AI and Tech Blog | Transformer Lab", "../", "../")}
 
   <main id="main">
     <section class="section section-band blog-page">
       <div class="section-heading">
         <p class="eyebrow">Transformer Lab</p>
-        <h1>Daily AI, tech, and finance digest</h1>
+        <h1>Daily AI and tech digest</h1>
       </div>
       <div class="research-intro">
         <p>
-          A daily, source-linked scan of AI news, technology news, finance and
-          stock-market headlines, product updates, and recent research papers. The digest is
+          A daily, source-linked scan of AI news, technology news, product updates,
+          and recent research papers, with a separate finance/stocks banner for
+          market headlines. The digest is
           generated by the Transformer Lab agent for students, teachers, and collaborators.
         </p>
       </div>
+      <aside class="finance-preview-banner blog-index-banner" aria-label="Finance and stocks banner">
+        <div>
+          <p class="blog-kicker">Separate market lane</p>
+          <h2>Finance/stocks daily banner</h2>
+          <p>Market headlines now sit in their own banner inside each digest, clearly separated from AI, technology, and research-paper updates.</p>
+        </div>
+        <a class="text-link" href="${escapeHtml((posts[0]?.url || "posts/").replace(/^blog\//, ""))}#finance-title">Open finance banner</a>
+      </aside>
       <section class="blog-index-section" aria-labelledby="written-digest-title">
         <h2 id="written-digest-title">Written digests</h2>
         <div class="blog-index-list">
@@ -759,8 +790,8 @@ const main = async () => {
 
   const slug = `${date}-ai-tech-digest`;
   const postUrl = `blog/posts/${slug}.html`;
-  const title = `AI, tech, and finance digest for ${date}`;
-  const summary = `A source-linked digest of ${newsItems.length} AI/tech headlines, ${financeItems.length} finance/market headlines, and ${papers.length} recent research papers.`;
+  const title = `AI and tech digest for ${date}`;
+  const summary = `A source-linked digest of ${newsItems.length} AI/tech headlines, a separate finance banner with ${financeItems.length} market headlines, and ${papers.length} recent research papers.`;
   const post = { date, title, summary, url: postUrl };
 
   await writeFile(path.join(postsDir, `${slug}.html`), renderPost({ date, papers, newsItems, financeItems }), "utf8");
