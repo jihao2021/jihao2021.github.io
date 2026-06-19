@@ -396,6 +396,45 @@ a:hover {
   object-fit: cover;
 }
 
+.profile-wave-hand {
+  position: absolute;
+  right: 4%;
+  bottom: 18%;
+  z-index: 2;
+  display: grid;
+  width: 4.2rem;
+  height: 4.2rem;
+  place-items: center;
+  pointer-events: none;
+  transform-origin: 72% 86%;
+  animation: profile-hand-wave 1.35s ease-in-out infinite;
+  will-change: transform;
+}
+
+.profile-wave-hand::before {
+  position: relative;
+  z-index: 1;
+  display: block;
+  font-size: 3.35rem;
+  line-height: 1;
+  content: "\1F44B";
+  filter: drop-shadow(0 5px 9px rgba(45, 18, 10, 0.16));
+}
+
+.profile-wave-hand::after {
+  position: absolute;
+  right: 0.72rem;
+  bottom: 0.22rem;
+  width: 1.35rem;
+  height: 0.68rem;
+  border: 1px solid rgba(153, 0, 0, 0.12);
+  border-radius: 999px;
+  background: #1d2430;
+  box-shadow: 0 4px 9px rgba(45, 18, 10, 0.1);
+  content: "";
+  transform: rotate(-18deg);
+}
+
 @keyframes profile-avatar-float {
   0%,
   100% {
@@ -449,6 +488,37 @@ a:hover {
   100% {
     opacity: 0;
     transform: translateX(78%) rotate(7deg);
+  }
+}
+
+@keyframes profile-hand-wave {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(-9deg) scale(1);
+  }
+
+  12% {
+    transform: translate3d(-2px, -5px, 0) rotate(20deg) scale(1.06);
+  }
+
+  25% {
+    transform: translate3d(1px, -2px, 0) rotate(-18deg) scale(1.04);
+  }
+
+  38% {
+    transform: translate3d(-2px, -6px, 0) rotate(24deg) scale(1.08);
+  }
+
+  52% {
+    transform: translate3d(1px, -2px, 0) rotate(-13deg) scale(1.03);
+  }
+
+  66% {
+    transform: translate3d(-1px, -4px, 0) rotate(16deg) scale(1.05);
+  }
+
+  82% {
+    transform: translate3d(0, -1px, 0) rotate(-6deg) scale(1.01);
   }
 }
 
@@ -1073,6 +1143,7 @@ a:hover {
   .profile-photo:hover,
   .profile-photo:focus-within,
   .profile-photo::after,
+  .profile-wave-hand,
   .avatar,
   .person-card:hover .avatar,
   .person-card:focus-within .avatar {
