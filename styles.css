@@ -782,6 +782,126 @@ a:hover {
   color: #385348;
 }
 
+.subpage-hero {
+  padding: 3.5rem 0;
+  background:
+    linear-gradient(110deg, rgba(153, 0, 0, 0.96), rgba(100, 0, 0, 0.91)),
+    radial-gradient(circle at 86% 20%, rgba(255, 204, 0, 0.25), transparent 24rem);
+  color: var(--white);
+}
+
+.subpage-hero-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(340px, 1fr);
+  gap: 2rem;
+  align-items: center;
+}
+
+.subpage-hero .eyebrow {
+  color: var(--usc-gold);
+}
+
+.subpage-hero h1 {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2.7rem, 5vw, 4.4rem);
+  line-height: 0.98;
+  letter-spacing: 0;
+}
+
+.subpage-hero p:not(.eyebrow) {
+  max-width: 760px;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 1.08rem;
+}
+
+.som-hero-media {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: 0.8rem;
+}
+
+.som-hero-media img {
+  width: 100%;
+  min-height: 170px;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: var(--radius);
+  box-shadow: 0 18px 50px rgba(40, 20, 20, 0.2);
+}
+
+.som-hero-media img:first-child {
+  grid-row: span 2;
+  height: 100%;
+}
+
+.som-meta-grid,
+.som-focus-grid,
+.som-team-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.som-meta-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.som-focus-grid,
+.som-team-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.som-meta-card,
+.som-focus-card,
+.som-team-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+}
+
+.som-meta-card h3,
+.som-focus-card h3,
+.som-team-card h3 {
+  margin: 0.45rem 0 0.5rem;
+  line-height: 1.2;
+}
+
+.som-meta-card p,
+.som-focus-card p {
+  margin-bottom: 0;
+  color: var(--muted);
+}
+
+.som-background {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: 2rem;
+  align-items: start;
+}
+
+.som-background-copy {
+  color: #333943;
+  font-size: 1.06rem;
+}
+
+.som-team-card ul {
+  margin: 0.65rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.som-team-card li {
+  padding: 0.55rem 0;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+}
+
+.som-team-card strong {
+  display: block;
+  color: var(--ink);
+}
+
 .blog-meta {
   margin-top: 0.8rem;
   font-size: 0.92rem;
@@ -1275,7 +1395,10 @@ a:hover {
   .theme-grid,
   .collaborator-people-grid,
   .blog-preview-grid,
-  .project-list {
+  .project-list,
+  .som-meta-grid,
+  .som-focus-grid,
+  .som-team-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -1348,6 +1471,8 @@ a:hover {
 
   .intro,
   .lab-panel,
+  .subpage-hero-inner,
+  .som-background,
   .highlight-grid,
   .people-grid,
   .contact-grid,
@@ -1443,7 +1568,11 @@ a:hover {
   .theme-grid,
   .collaborator-people-grid,
   .blog-preview-grid,
-  .project-list {
+  .project-list,
+  .som-meta-grid,
+  .som-focus-grid,
+  .som-team-grid,
+  .som-hero-media {
     grid-template-columns: 1fr;
   }
 
