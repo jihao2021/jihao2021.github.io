@@ -582,6 +582,112 @@ a:hover {
   padding: 3.25rem 0;
 }
 
+.daily-jokes {
+  padding: 3.25rem 0;
+  background:
+    radial-gradient(circle at 92% 12%, rgba(255, 204, 0, 0.2), transparent 22rem),
+    var(--paper);
+}
+
+.joke-layout {
+  display: grid;
+  grid-template-columns: minmax(230px, 0.65fr) minmax(0, 1.35fr);
+  gap: 3rem;
+  align-items: center;
+}
+
+.joke-heading {
+  margin-bottom: 0;
+}
+
+.joke-heading > p:last-child {
+  max-width: 32rem;
+  margin: 1rem 0 0;
+  color: var(--muted);
+}
+
+.joke-card {
+  position: relative;
+  overflow: hidden;
+  padding: 2rem;
+  background: var(--white);
+  border: 1px solid rgba(153, 0, 0, 0.18);
+  border-left: 0.42rem solid var(--usc-gold);
+  border-radius: var(--radius);
+  box-shadow: 0 16px 42px rgba(45, 18, 10, 0.08);
+}
+
+.joke-card::after {
+  position: absolute;
+  right: -0.15rem;
+  bottom: -2.2rem;
+  color: rgba(153, 0, 0, 0.06);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 10rem;
+  line-height: 1;
+  content: "?";
+  pointer-events: none;
+}
+
+.joke-meta {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  color: var(--usc-cardinal);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.joke-question,
+.joke-punchline,
+.joke-button {
+  position: relative;
+  z-index: 1;
+}
+
+.joke-question {
+  max-width: 760px;
+  margin: 1.25rem 0 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.5rem, 3vw, 2.35rem);
+  font-weight: 700;
+  line-height: 1.12;
+}
+
+.joke-punchline {
+  margin: 0.8rem 0 0;
+  color: var(--muted);
+  font-size: 1.08rem;
+}
+
+.joke-button {
+  min-height: 44px;
+  margin-top: 1.4rem;
+  padding: 0.65rem 1rem;
+  background: var(--usc-cardinal);
+  border: 2px solid var(--usc-cardinal);
+  border-radius: var(--radius);
+  color: var(--white);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+}
+
+.joke-button:hover {
+  background: var(--usc-cardinal-dark);
+  border-color: var(--usc-cardinal-dark);
+}
+
+.joke-button:focus-visible {
+  outline: 3px solid var(--usc-gold);
+  outline-offset: 3px;
+}
+
 .lab {
   background: var(--paper);
   padding: 3.25rem 0;
@@ -1496,6 +1602,7 @@ a:hover {
 
   .intro,
   .lab-panel,
+  .joke-layout,
   .subpage-hero-inner,
   .som-background,
   .highlight-grid,
@@ -1572,6 +1679,7 @@ a:hover {
   .highlights,
   .projects,
   .blog-preview,
+  .daily-jokes,
   .publications,
   .students,
   .collaborators,
